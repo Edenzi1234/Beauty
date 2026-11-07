@@ -1,7 +1,6 @@
 import { useLayoutEffect, useRef } from 'react'
 import { gsap, MOTION_OK } from '../lib/gsap'
 import { days } from '../content/course'
-import { whatsappHref } from '../lib/whatsapp'
 
 export default function Days() {
   const root = useRef(null)
@@ -31,7 +30,7 @@ export default function Days() {
     <section id="days" ref={root} className="bg-gradient-to-b from-porcelain via-blush/45 to-porcelain py-24 md:py-36">
       <div className="shell">
         <div className="max-w-2xl">
-          <h2 className="display text-[clamp(2.25rem,5.5vw,3.75rem)]">שלושה ימי לימוד</h2>
+          <h2 className="display text-[clamp(2.25rem,5.5vw,3.75rem)]">שני ימי לימוד</h2>
           <p className="mt-4 text-step-1 text-cocoa-soft">יום אחרי יום — מהבסיס העיוני ועד עבודה מעשית על מודליסטיות.</p>
         </div>
 
@@ -60,28 +59,14 @@ export default function Days() {
                   {day.title && <span className="block text-step-2 text-cocoa-soft">{day.title}</span>}
                 </h3>
 
-                {day.items.length > 0 ? (
-                  <ul className="mt-6 grid gap-x-10 gap-y-3 sm:grid-cols-2">
-                    {day.items.map((item) => (
-                      <li key={item} className="flex gap-3 border-b border-cocoa/10 pb-3">
-                        <span aria-hidden="true" className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-rose" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <>
-                    <p className="mt-4 text-cocoa-soft">
-                      לפירוט היום השלישי{' '}
-                      <a href={whatsappHref()} className="underline decoration-rose underline-offset-4 hover:text-rose">
-                        שלחי הודעה
-                      </a>
-                    </p>
-                    {import.meta.env.DEV && (
-                      <p className="todo-note mt-4">חסר תוכן: פירוט היום השלישי — יש למלא ב־src/content/course.js</p>
-                    )}
-                  </>
-                )}
+                <ul className="mt-6 grid gap-x-10 gap-y-3 sm:grid-cols-2">
+                  {day.items.map((item) => (
+                    <li key={item} className="flex gap-3 border-b border-cocoa/10 pb-3">
+                      <span aria-hidden="true" className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-rose" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </li>
           ))}

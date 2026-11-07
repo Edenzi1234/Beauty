@@ -64,7 +64,7 @@ export default function Register() {
         <div className="rounded-[2rem] border border-porcelain/15 p-7 md:p-10">
           <h3 className="display text-step-2">הקורס כולל</h3>
           <ul className="mt-5 space-y-3 text-porcelain/85">
-            <li>3 ימי לימוד — עיוני, שיווק ומעשי</li>
+            <li>2 ימי לימוד — עיוני, שיווק ומעשי</li>
             {included.items.map((item) => (
               <li key={item.title}>
                 {item.title}
