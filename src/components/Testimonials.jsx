@@ -22,14 +22,20 @@ export default function Testimonials() {
       <div className="shell">
         <h2 className="display text-[clamp(2.25rem,5.5vw,3.75rem)]">מה אומרות התלמידות</h2>
       </div>
-      <div className="snap-row shell mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4">
+      {/* Real messages from students, shown as message bubbles: swipe on phones, columns on larger screens */}
+      <div className="snap-row mt-12 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto px-5 pb-4 md:shell md:block md:columns-2 md:gap-6 md:overflow-visible md:px-0 lg:columns-3">
         {testimonials.map((t) => (
-          <figure key={t.name + t.text} className="flex w-[82vw] max-w-md shrink-0 snap-start flex-col justify-between rounded-3xl bg-blush/60 p-8">
-            <blockquote className="display text-step-2 leading-snug">״{t.text}״</blockquote>
-            <figcaption className="mt-8 text-step--1">
-              <span className="font-semibold">{t.name}</span>
-              {t.role && <span className="block text-cocoa-soft">{t.role}</span>}
-            </figcaption>
+          <figure
+            key={t.text}
+            className="w-[80vw] max-w-sm shrink-0 snap-center rounded-[1.75rem] rounded-ss-md bg-white p-7 shadow-[0_18px_40px_-24px_rgb(168_94_106/0.45)] md:mb-6 md:w-auto md:max-w-none md:break-inside-avoid"
+          >
+            <blockquote className="whitespace-pre-line text-step-1 leading-relaxed">{t.text}</blockquote>
+            {(t.name || t.role) && (
+              <figcaption className="mt-6 text-step--1">
+                {t.name && <span className="font-semibold">{t.name}</span>}
+                {t.role && <span className="block text-cocoa-soft">{t.role}</span>}
+              </figcaption>
+            )}
           </figure>
         ))}
       </div>
