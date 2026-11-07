@@ -28,6 +28,9 @@ export default function Header() {
           <a href="#days" className="hidden hover:text-rose sm:inline">
             תוכנית הקורס
           </a>
+          <a href="#marketing" className="hidden hover:text-rose sm:inline">
+            שיווק
+          </a>
           <a href="#results" className="hidden hover:text-rose sm:inline">
             תוצאות
           </a>

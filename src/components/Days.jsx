@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { gsap, MOTION_OK } from '../lib/gsap'
 import { days } from '../content/course'
+import SectionHeader from './SectionHeader'
 
 export default function Days() {
   const root = useRef(null)
@@ -27,12 +28,13 @@ export default function Days() {
   }, [])
 
   return (
-    <section id="days" ref={root} className="bg-gradient-to-b from-porcelain via-blush/45 to-porcelain py-24 md:py-36">
+    <section id="days" ref={root} className="bg-gradient-to-b from-porcelain via-nude to-porcelain py-24 md:py-36">
       <div className="shell">
-        <div className="max-w-2xl">
-          <h2 className="display text-[clamp(2.25rem,5.5vw,3.75rem)]">שני ימי לימוד</h2>
-          <p className="mt-4 text-step-1 text-cocoa-soft">יום אחרי יום — מהבסיס העיוני ועד עבודה מעשית על מודליסטיות.</p>
-        </div>
+        <SectionHeader
+          label="תוכנית הלימוד"
+          title="שני ימי לימוד"
+          subtitle="יום אחרי יום — מהבסיס העיוני ועד עבודה מעשית על מודליסטיות."
+        />
 
         <ol data-list className="relative mt-16 md:mt-24">
           {/* Thread */}

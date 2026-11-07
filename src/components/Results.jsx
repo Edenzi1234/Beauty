@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { gsap, MOTION_OK } from '../lib/gsap'
 import { results } from '../content/course'
+import SectionHeader from './SectionHeader'
 
 export default function Results() {
   const root = useRef(null)
@@ -36,7 +37,7 @@ export default function Results() {
   return (
     <section id="results" ref={root} className="py-24 md:py-36">
       <div className="shell">
-        <h2 className="display max-w-[16ch] text-[clamp(2.25rem,5.5vw,3.75rem)]">{results.title}</h2>
+        <SectionHeader label={results.label} title={results.title} />
       </div>
 
       <div

@@ -2,11 +2,12 @@
 
 /* ───────────── Design tokens ───────────── */
 @theme {
-  --color-porcelain: #fbf5f2;
-  --color-blush: #f3d9d6;
-  --color-petal: #e8b7b6;
-  --color-rose: #a85e6a;
-  --color-nude: #e6d2c3;
+  /* Brand pink is #FFCCCC (blush); every other tone is derived from it */
+  --color-porcelain: #fff1f1;
+  --color-blush: #ffcccc;
+  --color-petal: #f6a9b1;
+  --color-rose: #9a3f52;
+  --color-nude: #ffe2dc;
   --color-cocoa: #3b2a2c;
   --color-cocoa-soft: #6e5557;
 

@@ -1,16 +1,17 @@
 import { brand, included, pricing } from '../content/course'
 import LashCurve from './LashCurve'
+import SectionHeader from './SectionHeader'
 
 const formatPrice = (n) => new Intl.NumberFormat('he-IL').format(n)
 
 export default function Register() {
   return (
-    <section id="register" className="relative isolate overflow-hidden bg-cocoa py-24 text-porcelain md:py-36">
-      <LashCurve className="pointer-events-none absolute -top-6 inset-x-0 -z-10 mx-auto w-[min(140vw,70rem)] text-petal/15" strokeWidth={1} />
+    <section id="register" className="relative isolate overflow-hidden bg-blush pt-24 md:pt-36">
+      <LashCurve className="pointer-events-none absolute -top-6 inset-x-0 -z-10 mx-auto w-[min(140vw,70rem)] text-rose/15" strokeWidth={1} />
 
       <div className="shell grid gap-14 md:grid-cols-[1.1fr_0.9fr] md:items-end">
         <div>
-          <h2 className="display text-[clamp(2.5rem,6.5vw,4.5rem)]">הרשמה לקורס</h2>
+          <SectionHeader label="מחיר והרשמה" title="הרשמה לקורס" />
 
           {pricing.price ? (
             <div className="mt-8 flex flex-wrap items-baseline gap-x-6 gap-y-2">
@@ -20,20 +21,18 @@ export default function Register() {
                 <span className="text-step-1">₪</span>
               </p>
               {pricing.originalPrice && (
-                <p className="text-step-1 text-porcelain/55">
+                <p className="text-step-1 text-cocoa-soft">
                   <span className="sr-only">במקום</span>
-                  <del className="display text-step-3 decoration-petal decoration-1">{formatPrice(pricing.originalPrice)} ₪</del>
+                  <del className="display text-step-3 decoration-rose decoration-1">{formatPrice(pricing.originalPrice)} ₪</del>
                 </p>
               )}
             </div>
           ) : (
-            <p className="mt-6 max-w-[40ch] text-step-1 text-porcelain/80">
-              לפרטים על מחיר הקורס ומועדי המחזור הקרוב — דברי איתי.
-            </p>
+            <p className="mt-6 max-w-[40ch] text-step-1 text-cocoa-soft">לפרטים על מחיר הקורס ומועדי המחזור הקרוב — דברי איתי.</p>
           )}
 
           {pricing.notes.length > 0 && (
-            <ul className="mt-6 space-y-2 text-porcelain/80">
+            <ul className="mt-6 space-y-2 text-cocoa-soft">
               {pricing.notes.map((n) => (
                 <li key={n}>{n}</li>
               ))}
@@ -41,34 +40,41 @@ export default function Register() {
           )}
 
           {import.meta.env.DEV && !pricing.price && (
-            <p className="todo-note mt-6 max-w-xl bg-transparent text-petal">
-              חסר תוכן: מחיר הקורס — יש
-              למלא ב־src/content/course.js
-            </p>
+            <p className="todo-note mt-6 max-w-xl">חסר תוכן: מחיר הקורס — יש למלא ב־src/content/course.js</p>
           )}
         </div>
 
-        <div className="rounded-[2rem] border border-porcelain/15 p-7 md:p-10">
+        <div className="rounded-[2rem] bg-porcelain p-7 md:p-10">
           <h3 className="display text-step-2">הקורס כולל</h3>
-          <ul className="mt-5 space-y-3 text-porcelain/85">
-            <li>2 ימי לימוד — עיוני, שיווק ומעשי</li>
+          <ul className="mt-5 space-y-3">
+            <li className="flex gap-3">
+              <span aria-hidden="true" className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-rose" />
+              <span>
+                2 ימי לימוד <span className="text-cocoa-soft">עיוני, שיווק ומעשי</span>
+              </span>
+            </li>
             {included.items.map((item) => (
-              <li key={item.title}>
-                {item.title}
-                {item.detail && <span className="text-porcelain/60"> {item.detail}</span>}
+              <li key={item.title} className="flex gap-3">
+                <span aria-hidden="true" className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-rose" />
+                <span>
+                  {item.title}
+                  {item.detail && <span className="text-cocoa-soft"> {item.detail}</span>}
+                </span>
               </li>
             ))}
           </ul>
         </div>
       </div>
 
-      <footer className="shell mt-24 flex flex-wrap items-center justify-between gap-4 border-t border-porcelain/12 pt-8 text-step--1 text-porcelain/55">
-        <span className="display text-step-1 tracking-[0.18em] text-porcelain" dir="ltr">
-          {brand.name}
-        </span>
-        <span>
-          © {new Date().getFullYear()} {brand.hebrewName}
-        </span>
+      <footer className="mt-24 bg-cocoa py-8 text-step--1 text-porcelain/70">
+        <div className="shell flex flex-wrap items-center justify-between gap-4">
+          <span className="display text-step-1 tracking-[0.18em] text-porcelain" dir="ltr">
+            {brand.name}
+          </span>
+          <span>
+            © {new Date().getFullYear()} {brand.hebrewName}
+          </span>
+        </div>
       </footer>
     </section>
   )

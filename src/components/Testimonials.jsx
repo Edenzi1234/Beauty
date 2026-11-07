@@ -1,4 +1,5 @@
 import { testimonials } from '../content/course'
+import SectionHeader from './SectionHeader'
 
 export default function Testimonials() {
   if (testimonials.length === 0) {
@@ -7,7 +8,7 @@ export default function Testimonials() {
     return (
       <section className="py-20">
         <div className="shell">
-          <h2 className="display text-[clamp(2.25rem,5.5vw,3.75rem)]">מה אומרות התלמידות</h2>
+          <SectionHeader label="המלצות" title="מה אומרות התלמידות" />
           <p className="todo-note mt-6 max-w-xl">
             חסר תוכן: המלצות אמיתיות. יש להוסיף אותן למערך testimonials ב־src/content/course.js — עד אז האזור מוסתר
             בגרסה המפורסמת.
@@ -20,7 +21,7 @@ export default function Testimonials() {
   return (
     <section id="testimonials" className="py-24 md:py-36">
       <div className="shell">
-        <h2 className="display text-[clamp(2.25rem,5.5vw,3.75rem)]">מה אומרות התלמידות</h2>
+        <SectionHeader label="המלצות" title="מה אומרות התלמידות" />
       </div>
       {/* Real messages from students, shown as message bubbles: swipe on phones, columns on larger screens */}
       <div className="snap-row mt-12 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto px-5 pb-4 md:shell md:block md:columns-2 md:gap-6 md:overflow-visible md:px-0 lg:columns-3">

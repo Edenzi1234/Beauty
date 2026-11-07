@@ -82,7 +82,7 @@ export default function Hero() {
         <div className="relative mx-auto w-[min(74vw,26rem)] self-end md:w-full md:max-w-[30rem]">
           <div
             data-arch
-            className="arch absolute inset-x-[6%] bottom-0 top-[17%] bg-gradient-to-b from-blush via-[#f1d0cc] to-nude"
+            className="arch absolute inset-x-[6%] bottom-0 top-[17%] bg-gradient-to-b from-blush to-petal/70"
           />
           <div data-hero-lash className="absolute inset-x-[-2%] top-0 text-rose">
             <LashCurve className="w-full" strokeWidth={1.2} />

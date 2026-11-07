@@ -2,6 +2,7 @@ import Header from './components/Header'
 import Hero from './components/Hero'
 import Intro from './components/Intro'
 import Days from './components/Days'
+import Marketing from './components/Marketing'
 import Results from './components/Results'
 import Included from './components/Included'
 import Testimonials from './components/Testimonials'
@@ -15,6 +16,7 @@ export default function App() {
         <Hero />
         <Intro />
         <Days />
+        <Marketing />
         <Results />
         <Included />
         <Testimonials />
