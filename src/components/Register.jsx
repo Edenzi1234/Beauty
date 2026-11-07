@@ -1,4 +1,4 @@
-import { brand, included, pricing } from '../content/course'
+import { brand, contact, included, pricing } from '../content/course'
 import { hasWhatsapp, whatsappHref } from '../lib/whatsapp'
 import LashCurve from './LashCurve'
 import WhatsappIcon from './WhatsappIcon'
@@ -51,6 +51,14 @@ export default function Register() {
             <WhatsappIcon className="size-6" />
             שליחת הודעה בוואטסאפ
           </a>
+          {contact.phoneDisplay && (
+            <p className="mt-5 text-porcelain/70">
+              או בטלפון:{' '}
+              <a href={`tel:${contact.phoneDisplay.replace(/\D/g, '')}`} dir="ltr" className="text-porcelain underline decoration-petal/50 underline-offset-4">
+                {contact.phoneDisplay}
+              </a>
+            </p>
+          )}
         </div>
 
         <div className="rounded-[2rem] border border-porcelain/15 p-7 md:p-10">

@@ -21,7 +21,8 @@ export const brand = {
 
 /** פרטי קשר — יש למלא מספר בפורמט בינלאומי ללא + וללא מקפים, לדוגמה: 9725XXXXXXXX */
 export const contact = {
-  whatsappNumber: '', // TODO: למלא מספר וואטסאפ
+  whatsappNumber: '972584286914',
+  phoneDisplay: '058-4286914',
   whatsappMessage: 'היי, אשמח לשמוע פרטים על קורס הרמת ריסים ולמינציית גבות',
 }
 
