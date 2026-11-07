@@ -7,6 +7,7 @@ import result1 from '../assets/images/lash-lift/result-01.webp'
 import result2 from '../assets/images/lash-lift/result-02.webp'
 import result3 from '../assets/images/lash-lift/result-03.webp'
 import result4 from '../assets/images/lash-lift/result-04.webp'
+import closeup from '../assets/images/lash-lift/closeup.webp'
 
 export const bookingUrl = 'https://calmark.io/p/kJFOt'
 
@@ -22,6 +23,8 @@ export const hero = {
 export const about = {
   label: 'על הטיפול',
   title: 'הריסים הטבעיות שלך, במיטבן',
+  image: closeup,
+  imageAlt: 'תקריב של ריסים מורמות ומעוגלות אחרי הטיפול',
   steps: [
     { title: 'מרימה', body: 'הריסים הטבעיות שלך מורמות מהשורש.' },
     { title: 'מעגלת', body: 'הריסים מקבלות קימור יפה ומסודר.' },
