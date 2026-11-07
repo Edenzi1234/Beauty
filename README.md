@@ -1,4 +1,4 @@
-# BEAUTYRISS — דף נחיתה לקורס הרמת ריסים ולמינציית גבות
+# BEAUTYRISS — דף נחיתה לקורס הרמת ריסים וגבות
 
 React + Vite, Tailwind CSS v4, GSAP + ScrollTrigger. עברית מלאה ו־RTL.
 

@@ -20,7 +20,7 @@ export const brand = {
 }
 
 export const hero = {
-  title: ['קורס הרמת ריסים', 'והרמת גבות'],
+  title: ['קורס הרמת', 'ריסים וגבות'],
   lead: 'קורס פרימיום שמעניק לך ידע מקצועי ברמה הגבוהה ביותר, בשילוב טכניקות ייחודיות וחומרי עבודה של NOVEL.',
   image: instructorHero,
   imageAlt: 'מדריכת הקורס של BEAUTYRISS',
@@ -109,7 +109,7 @@ export const results = {
   images: [
     { src: result1, alt: 'תוצאת הרמת ריסים וגבות של תלמידה' },
     { src: result2, alt: 'תוצאת הרמת ריסים של תלמידה' },
-    { src: result3, alt: 'תוצאת למינציית גבות והרמת ריסים של תלמידה' },
+    { src: result3, alt: 'תוצאת הרמת ריסים וגבות של תלמידה' },
   ],
 }
 
