@@ -6,7 +6,6 @@ import Results from './components/Results'
 import Included from './components/Included'
 import Testimonials from './components/Testimonials'
 import Register from './components/Register'
-import FloatingWhatsapp from './components/FloatingWhatsapp'
 
 export default function App() {
   return (
@@ -21,7 +20,6 @@ export default function App() {
         <Testimonials />
         <Register />
       </main>
-      <FloatingWhatsapp />
     </>
   )
 }

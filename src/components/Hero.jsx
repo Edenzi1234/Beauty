@@ -1,9 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { gsap, MOTION_OK } from '../lib/gsap'
 import { brand, hero } from '../content/course'
-import { whatsappHref } from '../lib/whatsapp'
 import LashCurve from './LashCurve'
-import WhatsappIcon from './WhatsappIcon'
 
 export default function Hero() {
   const root = useRef(null)
@@ -71,12 +69,11 @@ export default function Hero() {
           </p>
 
           <div data-fade className="mt-7 flex flex-wrap gap-3 md:mt-8">
-            <a href={whatsappHref()} className="btn btn-solid" target={whatsappHref().startsWith('http') ? '_blank' : undefined} rel="noopener">
-              <WhatsappIcon />
-              לפרטים והרשמה
-            </a>
-            <a href="#days" className="btn btn-ghost max-sm:hidden">
+            <a href="#days" className="btn btn-solid">
               מה לומדים בקורס
+            </a>
+            <a href="#register" className="btn btn-ghost">
+              מחיר והרשמה
             </a>
           </div>
         </div>

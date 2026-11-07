@@ -1,13 +1,9 @@
 import { brand, contact, included, pricing } from '../content/course'
-import { hasWhatsapp, whatsappHref } from '../lib/whatsapp'
 import LashCurve from './LashCurve'
-import WhatsappIcon from './WhatsappIcon'
 
 const formatPrice = (n) => new Intl.NumberFormat('he-IL').format(n)
 
 export default function Register() {
-  const href = whatsappHref()
-
   return (
     <section id="register" className="relative isolate overflow-hidden bg-cocoa py-24 text-porcelain md:py-36">
       <LashCurve className="pointer-events-none absolute -top-6 inset-x-0 -z-10 mx-auto w-[min(140vw,70rem)] text-petal/15" strokeWidth={1} />
@@ -32,7 +28,7 @@ export default function Register() {
             </div>
           ) : (
             <p className="mt-6 max-w-[40ch] text-step-1 text-porcelain/80">
-              לפרטים על מחיר הקורס ומועדי המחזור הקרוב — שלחי הודעה בוואטסאפ.
+              לפרטים על מחיר הקורס ומועדי המחזור הקרוב — דברי איתי.
             </p>
           )}
 
@@ -44,25 +40,16 @@ export default function Register() {
             </ul>
           )}
 
-          {import.meta.env.DEV && (!pricing.price || !hasWhatsapp()) && (
+          {import.meta.env.DEV && !pricing.price && (
             <p className="todo-note mt-6 max-w-xl bg-transparent text-petal">
-              חסר תוכן: {[!pricing.price && 'מחיר הקורס', !hasWhatsapp() && 'מספר וואטסאפ'].filter(Boolean).join(' ו')} — יש
+              חסר תוכן: מחיר הקורס — יש
               למלא ב־src/content/course.js
             </p>
           )}
 
-          <a
-            href={href}
-            target={href.startsWith('http') ? '_blank' : undefined}
-            rel="noopener"
-            className="btn btn-light mt-10 min-h-14 px-8 text-step-1"
-          >
-            <WhatsappIcon className="size-6" />
-            שליחת הודעה בוואטסאפ
-          </a>
           {contact.phoneDisplay && (
-            <p className="mt-5 text-porcelain/70">
-              או בטלפון:{' '}
+            <p className="mt-10 text-step-1 text-porcelain/70">
+              לשאלות והרשמה:{' '}
               <a href={`tel:${contact.phoneDisplay.replace(/\D/g, '')}`} dir="ltr" className="text-porcelain underline decoration-petal/50 underline-offset-4">
                 {contact.phoneDisplay}
               </a>
