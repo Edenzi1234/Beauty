@@ -17,10 +17,19 @@ export default function Register() {
           <h2 className="display text-[clamp(2.5rem,6.5vw,4.5rem)]">הרשמה לקורס</h2>
 
           {pricing.price ? (
-            <p className="mt-8 flex items-baseline gap-3">
-              <span className="display text-[clamp(3.5rem,10vw,6rem)] leading-none">{formatPrice(pricing.price)}</span>
-              <span className="text-step-1">₪</span>
-            </p>
+            <div className="mt-8 flex flex-wrap items-baseline gap-x-6 gap-y-2">
+              <p className="flex items-baseline gap-2">
+                <span className="sr-only">מחיר הקורס:</span>
+                <span className="display text-[clamp(3.5rem,10vw,6rem)] leading-none">{formatPrice(pricing.price)}</span>
+                <span className="text-step-1">₪</span>
+              </p>
+              {pricing.originalPrice && (
+                <p className="text-step-1 text-porcelain/55">
+                  <span className="sr-only">במקום</span>
+                  <del className="display text-step-3 decoration-petal decoration-1">{formatPrice(pricing.originalPrice)} ₪</del>
+                </p>
+              )}
+            </div>
           ) : (
             <p className="mt-6 max-w-[40ch] text-step-1 text-porcelain/80">
               לפרטים על מחיר הקורס ומועדי המחזור הקרוב — שלחי הודעה בוואטסאפ.

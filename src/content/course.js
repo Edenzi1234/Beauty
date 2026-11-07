@@ -118,10 +118,12 @@ export const included = {
 export const testimonials = []
 
 /**
- * מחיר ופרטי הרשמה. price: מספר בשקלים (למשל 3500) או null.
+ * מחיר ופרטי הרשמה. price: מספר בשקלים או null.
+ * originalPrice: המחיר המקורי שמוצג מחוק לצד המחיר (או null).
  * notes: שורות נוספות כמו מועדים, תשלומים, מיקום.
  */
 export const pricing = {
-  price: null, // TODO: מחיר הקורס
+  price: 3500,
+  originalPrice: 4000,
   notes: [], // TODO: מועדים / תנאי תשלום / מיקום
 }
