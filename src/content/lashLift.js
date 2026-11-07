@@ -7,6 +7,7 @@ import result1 from '../assets/images/lash-lift/result-01.webp'
 import result2 from '../assets/images/lash-lift/result-02.webp'
 import result3 from '../assets/images/lash-lift/result-03.webp'
 import result4 from '../assets/images/lash-lift/result-04.webp'
+import result5 from '../assets/images/lash-lift/result-05.webp'
 import closeup from '../assets/images/lash-lift/closeup.webp'
 import heroEden from '../assets/images/lash-lift/hero-eden.webp'
 
@@ -55,5 +56,6 @@ export const results = {
     { src: result2, alt: 'תוצאת הרמת ריסים של לקוחה' },
     { src: result3, alt: 'תוצאת הרמת ריסים של לקוחה' },
     { src: result4, alt: 'תוצאת הרמת ריסים של לקוחה' },
+    { src: result5, alt: 'תוצאת הרמת ריסים של לקוחה' },
   ],
 }

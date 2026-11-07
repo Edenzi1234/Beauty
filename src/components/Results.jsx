@@ -2,6 +2,9 @@ import { useLayoutEffect, useRef } from 'react'
 import { gsap, MOTION_OK } from '../lib/gsap'
 import SectionHeader from './SectionHeader'
 
+// Static class names so Tailwind can see them
+const desktopCols = { 3: 'md:grid-cols-3', 4: 'md:grid-cols-4', 5: 'md:grid-cols-5' }
+
 export default function Results({ label, title, images }) {
   const root = useRef(null)
 
@@ -41,7 +44,7 @@ export default function Results({ label, title, images }) {
 
       <div
         data-grid
-        className="snap-row mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 md:shell md:mt-20 md:grid md:grid-cols-4 md:gap-5 md:overflow-visible md:px-0"
+        className={`snap-row mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 md:shell md:mt-20 md:grid ${desktopCols[images.length] ?? 'md:grid-cols-4'} md:gap-5 md:overflow-visible md:px-0`}
       >
         {images.map((img, i) => (
           <figure
