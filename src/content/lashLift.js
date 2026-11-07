@@ -52,10 +52,10 @@ export const results = {
   label: 'תוצאות',
   title: 'ריסים של לקוחות מהקליניקה',
   images: [
+    { src: result4, alt: 'תוצאת הרמת ריסים של לקוחה' },
     { src: result1, alt: 'תוצאת הרמת ריסים של לקוחה' },
     { src: result2, alt: 'תוצאת הרמת ריסים של לקוחה' },
     { src: result3, alt: 'תוצאת הרמת ריסים של לקוחה' },
-    { src: result4, alt: 'תוצאת הרמת ריסים של לקוחה' },
     { src: result5, alt: 'תוצאת הרמת ריסים של לקוחה' },
   ],
 }
