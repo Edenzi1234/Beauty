@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { gsap, MOTION_OK } from '../lib/gsap'
-import { brand, hero } from '../content/course'
+import { brand, hero, location } from '../content/course'
+import PinIcon from './PinIcon'
 import LashCurve from './LashCurve'
 
 export default function Hero() {
@@ -66,6 +67,11 @@ export default function Hero() {
 
           <p data-fade className="mt-5 max-w-[34ch] text-step-0 leading-relaxed text-cocoa-soft md:mt-6 md:text-step-1">
             {hero.lead}
+          </p>
+
+          <p data-fade className="mt-4 flex items-center gap-2 text-step-0 text-cocoa-soft">
+            <PinIcon className="size-5 shrink-0 text-rose" />
+            {location.city}, {location.area}
           </p>
 
           <div data-fade className="mt-7 flex flex-wrap gap-3 md:mt-8">

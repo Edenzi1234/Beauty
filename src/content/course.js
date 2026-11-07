@@ -164,8 +164,14 @@ export const testimonials = [
  * originalPrice: המחיר המקורי שמוצג מחוק לצד המחיר (או null).
  * notes: שורות נוספות כמו מועדים, תשלומים, מיקום.
  */
+/** מיקום הקורס */
+export const location = {
+  city: 'פתח תקווה',
+  area: 'אם המושבות',
+}
+
 export const pricing = {
   price: 3500,
   originalPrice: 4000,
-  notes: [], // TODO: מועדים / תנאי תשלום / מיקום
+  notes: [], // אופציונלי: מועדים / תנאי תשלום
 }

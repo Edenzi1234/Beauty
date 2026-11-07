@@ -1,4 +1,5 @@
-import { included, pricing } from '../content/course'
+import { included, location, pricing } from '../content/course'
+import PinIcon from './PinIcon'
 import LashCurve from './LashCurve'
 import SectionHeader from './SectionHeader'
 
@@ -30,6 +31,13 @@ export default function Register() {
           ) : (
             <p className="mt-6 max-w-[40ch] text-step-1 text-cocoa-soft">לפרטים על מחיר הקורס ומועדי המחזור הקרוב — דברי איתי.</p>
           )}
+
+          <p className="mt-8 flex items-center gap-3 text-step-1">
+            <PinIcon className="size-6 shrink-0 text-rose" />
+            <span>
+              <span className="font-semibold">מיקום הקורס:</span> {location.city}, {location.area}
+            </span>
+          </p>
 
           {pricing.notes.length > 0 && (
             <ul className="mt-6 space-y-2 text-cocoa-soft">
