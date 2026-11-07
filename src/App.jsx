@@ -1,4 +1,5 @@
 import Header from './components/Header'
+import { brand, hero, location, results } from './content/course'
 import Hero from './components/Hero'
 import Intro from './components/Intro'
 import Days from './components/Days'
@@ -15,11 +16,24 @@ export default function App() {
     <>
       <Header />
       <main>
-        <Hero />
+        <Hero
+          kicker={brand.hebrewName}
+          title={hero.title}
+          lead={hero.lead}
+          location={`${location.city}, ${location.area}`}
+          actions={[
+            { href: '#days', label: 'מה לומדים בקורס' },
+            { href: '#register', label: 'מחיר והרשמה' },
+          ]}
+          image={hero.image}
+          imageAlt={hero.imageAlt}
+          imageWidth="900"
+          imageHeight="1333"
+        />
         <Intro />
         <Days />
         <Marketing />
-        <Results />
+        <Results label={results.label} title={results.title} images={results.images} />
         <Included />
         <Testimonials />
         <Register />

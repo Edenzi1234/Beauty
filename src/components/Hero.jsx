@@ -1,10 +1,14 @@
 import { useLayoutEffect, useRef } from 'react'
 import { gsap, MOTION_OK } from '../lib/gsap'
-import { brand, hero, location } from '../content/course'
+import { brand } from '../content/course'
 import PinIcon from './PinIcon'
 import LashCurve from './LashCurve'
 
-export default function Hero() {
+/**
+ * Opening screen shared by every page.
+ * imageMode 'cutout' = transparent portrait standing in the arch; 'cover' = photo filling the arch.
+ */
+export default function Hero({ kicker, title, lead, location, actions = [], image, imageAlt, imageWidth, imageHeight, imageMode = 'cutout' }) {
   const root = useRef(null)
 
   useLayoutEffect(() => {
@@ -29,7 +33,8 @@ export default function Hero() {
 
       // Depth on scroll: portrait, arch and wordmark move at different speeds
       const st = { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true }
-      gsap.to(q('[data-portrait]'), { yPercent: -10, ease: 'none', scrollTrigger: st })
+      // Parallax lives on a wrapper so it never fights the intro tween on the image itself
+      gsap.to(q('[data-parallax]'), { yPercent: -10, ease: 'none', scrollTrigger: st })
       gsap.to(q('[data-arch]'), { yPercent: 6, ease: 'none', scrollTrigger: st })
       gsap.to(q('[data-wordmark]'), { xPercent: 12, ease: 'none', scrollTrigger: st })
     })
@@ -52,11 +57,11 @@ export default function Hero() {
         {/* Copy */}
         <div className="relative z-10 pt-8 md:pt-0">
           <p data-fade className="mb-3 text-step-0 text-cocoa-soft md:mb-5">
-            {brand.hebrewName}
+            {kicker}
           </p>
 
           <h1 className="display text-[clamp(2.75rem,8.4vw,6.25rem)]">
-            {hero.title.map((line) => (
+            {title.map((line) => (
               <span key={line} className="block overflow-hidden pb-[0.08em]">
                 <span data-line className="block">
                   {line}
@@ -66,42 +71,68 @@ export default function Hero() {
           </h1>
 
           <p data-fade className="mt-5 max-w-[34ch] text-step-0 leading-relaxed text-cocoa-soft md:mt-6 md:text-step-1">
-            {hero.lead}
+            {lead}
           </p>
 
-          <p data-fade className="mt-4 flex items-center gap-2 text-step-0 text-cocoa-soft">
-            <PinIcon className="size-5 shrink-0 text-rose" />
-            {location.city}, {location.area}
-          </p>
+          {location && (
+            <p data-fade className="mt-4 flex items-center gap-2 text-step-0 text-cocoa-soft">
+              <PinIcon className="size-5 shrink-0 text-rose" />
+              {location}
+            </p>
+          )}
 
           <div data-fade className="mt-7 flex flex-wrap gap-3 md:mt-8">
-            <a href="#days" className="btn btn-solid">
-              מה לומדים בקורס
-            </a>
-            <a href="#register" className="btn btn-ghost">
-              מחיר והרשמה
-            </a>
+            {actions.map((a, i) => (
+              <a
+                key={a.href}
+                href={a.href}
+                className={`btn ${i === 0 ? 'btn-solid' : 'btn-ghost'}`}
+                {...(a.external ? { target: '_blank', rel: 'noopener' } : {})}
+              >
+                {a.label}
+              </a>
+            ))}
           </div>
         </div>
 
         {/* Portrait in arch */}
         <div className="relative mx-auto w-[min(74vw,26rem)] self-end md:w-full md:max-w-[30rem]">
-          <div
-            data-arch
-            className="arch absolute inset-x-[6%] bottom-0 top-[17%] bg-gradient-to-b from-blush to-petal/70"
-          />
-          <div data-hero-lash className="absolute inset-x-[-2%] top-0 text-rose">
+          <div data-hero-lash className="absolute inset-x-[-2%] top-0 z-10 text-rose">
             <LashCurve className="w-full" strokeWidth={1.2} />
           </div>
-          <img
-            data-portrait
-            src={hero.image}
-            alt={hero.imageAlt}
-            width="900"
-            height="1333"
-            fetchPriority="high"
-            className="relative mx-auto mt-[24%] w-[84%] will-change-transform"
-          />
+          {imageMode === 'cover' ? (
+            <div data-arch className="arch relative mx-[6%] mt-[17%] aspect-[3/4] bg-blush">
+              <div data-parallax className="h-[112%] will-change-transform">
+                <img
+                  data-portrait
+                  src={image}
+                  alt={imageAlt}
+                  width={imageWidth}
+                  height={imageHeight}
+                  fetchPriority="high"
+                  className="size-full object-cover"
+                />
+              </div>
+            </div>
+          ) : (
+            <>
+              <div
+                data-arch
+                className="arch absolute inset-x-[6%] bottom-0 top-[17%] bg-gradient-to-b from-blush to-petal/70"
+              />
+              <div data-parallax className="relative will-change-transform">
+                <img
+                  data-portrait
+                  src={image}
+                  alt={imageAlt}
+                  width={imageWidth}
+                  height={imageHeight}
+                  fetchPriority="high"
+                  className="mx-auto mt-[24%] w-[84%]"
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </section>

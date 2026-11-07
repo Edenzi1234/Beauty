@@ -1,9 +1,8 @@
 import { useLayoutEffect, useRef } from 'react'
 import { gsap, MOTION_OK } from '../lib/gsap'
-import { results } from '../content/course'
 import SectionHeader from './SectionHeader'
 
-export default function Results() {
+export default function Results({ label, title, images }) {
   const root = useRef(null)
 
   useLayoutEffect(() => {
@@ -37,14 +36,14 @@ export default function Results() {
   return (
     <section id="results" ref={root} className="py-24 md:py-36">
       <div className="shell">
-        <SectionHeader label={results.label} title={results.title} />
+        <SectionHeader label={label} title={title} />
       </div>
 
       <div
         data-grid
         className="snap-row mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 md:shell md:mt-20 md:grid md:grid-cols-4 md:gap-5 md:overflow-visible md:px-0"
       >
-        {results.images.map((img, i) => (
+        {images.map((img, i) => (
           <figure
             key={img.src}
             data-shot

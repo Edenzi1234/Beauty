@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
 import { brand } from '../content/course'
 
-export default function Header() {
+const courseLinks = [
+  { href: '#days', label: 'תוכנית הקורס' },
+  { href: '#marketing', label: 'שיווק' },
+  { href: '#results', label: 'תוצאות' },
+]
+
+export default function Header({ links = courseLinks, cta = { href: '#register', label: 'הרשמה' } }) {
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -25,17 +31,17 @@ export default function Header() {
           {brand.name}
         </a>
         <nav className="flex items-center gap-6 text-step--1">
-          <a href="#days" className="hidden hover:text-rose sm:inline">
-            תוכנית הקורס
-          </a>
-          <a href="#marketing" className="hidden hover:text-rose sm:inline">
-            שיווק
-          </a>
-          <a href="#results" className="hidden hover:text-rose sm:inline">
-            תוצאות
-          </a>
-          <a href="#register" className="btn btn-ghost min-h-10 px-5 text-step--1">
-            הרשמה
+          {links.map((l) => (
+            <a key={l.href} href={l.href} className="hidden hover:text-rose sm:inline">
+              {l.label}
+            </a>
+          ))}
+          <a
+            href={cta.href}
+            className="btn btn-ghost min-h-10 px-5 text-step--1"
+            {...(cta.external ? { target: '_blank', rel: 'noopener' } : {})}
+          >
+            {cta.label}
           </a>
         </nav>
       </div>
