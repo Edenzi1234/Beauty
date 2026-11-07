@@ -1,4 +1,4 @@
-import { brand, contact, included, pricing } from '../content/course'
+import { brand, included, pricing } from '../content/course'
 import LashCurve from './LashCurve'
 
 const formatPrice = (n) => new Intl.NumberFormat('he-IL').format(n)
@@ -44,15 +44,6 @@ export default function Register() {
             <p className="todo-note mt-6 max-w-xl bg-transparent text-petal">
               חסר תוכן: מחיר הקורס — יש
               למלא ב־src/content/course.js
-            </p>
-          )}
-
-          {contact.phoneDisplay && (
-            <p className="mt-10 text-step-1 text-porcelain/70">
-              לשאלות והרשמה:{' '}
-              <a href={`tel:${contact.phoneDisplay.replace(/\D/g, '')}`} dir="ltr" className="text-porcelain underline decoration-petal/50 underline-offset-4">
-                {contact.phoneDisplay}
-              </a>
             </p>
           )}
         </div>
