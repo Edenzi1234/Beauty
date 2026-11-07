@@ -4,8 +4,8 @@ import SectionHeader from './SectionHeader'
 export default function Included() {
   return (
     <section id="included" className="overflow-hidden pt-16 md:pt-32">
-      <div className="shell grid items-end gap-12 md:grid-cols-2 md:gap-16">
-        <div className="pb-12 md:pb-28">
+      <div className="shell grid items-center gap-12 md:grid-cols-2 md:gap-16">
+        <div className="md:pb-12">
           <SectionHeader label={included.label} title={included.title} />
           <dl className="mt-10">
             {included.items.map((item) => (
@@ -17,15 +17,14 @@ export default function Included() {
           </dl>
         </div>
 
-        <div className="relative mx-auto w-full max-w-md">
-          <div className="arch absolute inset-x-0 bottom-0 top-[10%] bg-gradient-to-b from-blush to-petal" />
+        <div className="arch mx-auto mb-16 w-full max-w-md md:mb-28">
           <img
             src={included.image}
             alt={included.imageAlt}
             loading="lazy"
-            width="849"
-            height="1011"
-            className="relative mx-auto w-[94%]"
+            width="1100"
+            height="1375"
+            className="aspect-[4/5] w-full object-cover"
           />
         </div>
       </div>

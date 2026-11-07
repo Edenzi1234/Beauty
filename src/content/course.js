@@ -8,11 +8,13 @@
  */
 
 import instructorHero from '../assets/images/instructor-hero.webp'
-import instructorKit from '../assets/images/instructor-kit.webp'
+import courseSetup from '../assets/images/course-setup.webp'
+import kitBox from '../assets/images/kit-box.webp'
 import lashCloseup from '../assets/images/lash-closeup.webp'
 import result1 from '../assets/images/result-1.webp'
 import result2 from '../assets/images/result-2.webp'
 import result3 from '../assets/images/result-3.webp'
+import result4 from '../assets/images/result-4.webp'
 
 export const brand = {
   name: 'BEAUTYRISS',
@@ -75,6 +77,11 @@ export const marketing = {
 /**
  * ימי הלימוד — הקורס נמשך שני ימים, יום אחרי יום.
  */
+export const daysImage = {
+  src: courseSetup,
+  alt: 'עמדת הלימוד בקורס: חוברת הלימוד, ערכת BEAUTYRISS ומסך הדרכה',
+}
+
 export const days = [
   {
     label: 'יום ראשון',
@@ -110,6 +117,7 @@ export const results = {
     { src: result1, alt: 'תוצאת הרמת ריסים וגבות של תלמידה' },
     { src: result2, alt: 'תוצאת הרמת ריסים של תלמידה' },
     { src: result3, alt: 'תוצאת הרמת ריסים וגבות של תלמידה' },
+    { src: result4, alt: 'תקריב של הרמת ריסים וגבות של תלמידה' },
   ],
 }
 
@@ -124,8 +132,8 @@ export const included = {
     { title: '10% הנחה', detail: 'באתר “עדן ביוטי שופ”' },
     { title: 'ליווי אישי', detail: 'זמין 24/7' },
   ],
-  image: instructorKit,
-  imageAlt: 'מדריכת הקורס עם ערכת החומרים של NOVEL',
+  image: kitBox,
+  imageAlt: 'ערכת החומרים של הקורס עם מוצרי NOVEL ו־BRONSUN',
 }
 
 /**

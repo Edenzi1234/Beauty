@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from 'react'
 import { gsap, MOTION_OK } from '../lib/gsap'
-import { days } from '../content/course'
+import { days, daysImage } from '../content/course'
 import SectionHeader from './SectionHeader'
 
 export default function Days() {
@@ -30,11 +30,21 @@ export default function Days() {
   return (
     <section id="days" ref={root} className="bg-gradient-to-b from-porcelain via-nude to-porcelain py-24 md:py-36">
       <div className="shell">
-        <SectionHeader
-          label="תוכנית הלימוד"
-          title="שני ימי לימוד"
-          subtitle="יום אחרי יום — מהבסיס העיוני ועד עבודה מעשית על מודליסטיות."
-        />
+        <div className="grid items-end gap-10 md:grid-cols-[1fr_0.8fr] md:gap-16">
+          <SectionHeader
+            label="תוכנית הלימוד"
+            title="שני ימי לימוד"
+            subtitle="יום אחרי יום — מהבסיס העיוני ועד עבודה מעשית על מודליסטיות."
+          />
+          <img
+            src={daysImage.src}
+            alt={daysImage.alt}
+            loading="lazy"
+            width="1100"
+            height="1375"
+            className="aspect-[4/5] w-full max-w-md justify-self-center rounded-[2rem] object-cover shadow-[0_30px_60px_-30px_rgb(154_63_82/0.45)] md:justify-self-end"
+          />
+        </div>
 
         <ol data-list className="relative mt-16 md:mt-24">
           {/* Thread */}
