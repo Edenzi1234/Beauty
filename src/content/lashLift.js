@@ -3,7 +3,6 @@
  * כל הטקסטים נלקחו מההודעה של עדן. לעדכון מחיר, משך או קישור — עורכים רק כאן.
  */
 
-import result1 from '../assets/images/lash-lift/result-01.webp'
 import result2 from '../assets/images/lash-lift/result-02.webp'
 import result3 from '../assets/images/lash-lift/result-03.webp'
 import result4 from '../assets/images/lash-lift/result-04.webp'
@@ -53,7 +52,6 @@ export const results = {
   title: 'ריסים של לקוחות מהקליניקה',
   images: [
     { src: result4, alt: 'תוצאת הרמת ריסים של לקוחה' },
-    { src: result1, alt: 'תוצאת הרמת ריסים של לקוחה' },
     { src: result2, alt: 'תוצאת הרמת ריסים של לקוחה' },
     { src: result3, alt: 'תוצאת הרמת ריסים של לקוחה' },
     { src: result5, alt: 'תוצאת הרמת ריסים של לקוחה' },
