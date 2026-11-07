@@ -1,4 +1,4 @@
-import { brand, included, pricing } from '../content/course'
+import { included, pricing } from '../content/course'
 import LashCurve from './LashCurve'
 import SectionHeader from './SectionHeader'
 
@@ -6,7 +6,7 @@ const formatPrice = (n) => new Intl.NumberFormat('he-IL').format(n)
 
 export default function Register() {
   return (
-    <section id="register" className="relative isolate overflow-hidden bg-blush pt-24 md:pt-36">
+    <section id="register" className="relative isolate overflow-hidden bg-porcelain py-24 md:py-36">
       <LashCurve className="pointer-events-none absolute -top-6 inset-x-0 -z-10 mx-auto w-[min(140vw,70rem)] text-rose/15" strokeWidth={1} />
 
       <div className="shell grid gap-14 md:grid-cols-[1.1fr_0.9fr] md:items-end">
@@ -44,7 +44,7 @@ export default function Register() {
           )}
         </div>
 
-        <div className="rounded-[2rem] bg-porcelain p-7 md:p-10">
+        <div className="rounded-[2rem] bg-blush p-7 md:p-10">
           <h3 className="display text-step-2">הקורס כולל</h3>
           <ul className="mt-5 space-y-3">
             <li className="flex gap-3">
@@ -66,16 +66,6 @@ export default function Register() {
         </div>
       </div>
 
-      <footer className="mt-24 bg-cocoa py-8 text-step--1 text-porcelain/70">
-        <div className="shell flex flex-wrap items-center justify-between gap-4">
-          <span className="display text-step-1 tracking-[0.18em] text-porcelain" dir="ltr">
-            {brand.name}
-          </span>
-          <span>
-            © {new Date().getFullYear()} {brand.hebrewName}
-          </span>
-        </div>
-      </footer>
     </section>
   )
 }

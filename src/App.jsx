@@ -7,6 +7,8 @@ import Results from './components/Results'
 import Included from './components/Included'
 import Testimonials from './components/Testimonials'
 import Register from './components/Register'
+import Graduates from './components/Graduates'
+import Footer from './components/Footer'
 
 export default function App() {
   return (
@@ -21,7 +23,9 @@ export default function App() {
         <Included />
         <Testimonials />
         <Register />
+        <Graduates />
       </main>
+      <Footer />
     </>
   )
 }
