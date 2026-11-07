@@ -31,9 +31,9 @@ export default function LashLiftApp() {
           actions={[book, { href: '#details', label: 'פרטים ומחיר' }]}
           image={hero.image}
           imageAlt={hero.imageAlt}
-          imageWidth="1000"
-          imageHeight="1333"
-          imageMode="cover"
+          imageWidth="800"
+          imageHeight="800"
+          imageMode="circle"
         />
         <About />
         <Details />

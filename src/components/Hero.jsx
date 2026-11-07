@@ -6,7 +6,8 @@ import LashCurve from './LashCurve'
 
 /**
  * Opening screen shared by every page.
- * imageMode 'cutout' = transparent portrait standing in the arch; 'cover' = photo filling the arch.
+ * imageMode 'cutout' = transparent portrait standing in the arch; 'cover' = photo filling the arch;
+ * 'circle' = round portrait under the lash curve, like an eye.
  */
 export default function Hero({ kicker, title, lead, location, actions = [], image, imageAlt, imageWidth, imageHeight, imageMode = 'cutout' }) {
   const root = useRef(null)
@@ -100,7 +101,21 @@ export default function Hero({ kicker, title, lead, location, actions = [], imag
           <div data-hero-lash className="absolute inset-x-[-2%] top-0 z-10 text-rose">
             <LashCurve className="w-full" strokeWidth={1.2} />
           </div>
-          {imageMode === 'cover' ? (
+          {imageMode === 'circle' ? (
+            <div data-parallax className="relative mx-[9%] mt-[20%] will-change-transform md:mx-[13%] md:mt-[15%] md:mb-10">
+              <div data-arch className="aspect-square overflow-hidden rounded-full bg-blush shadow-[0_40px_80px_-40px_rgb(154_63_82/0.6)]">
+                <img
+                  data-portrait
+                  src={image}
+                  alt={imageAlt}
+                  width={imageWidth}
+                  height={imageHeight}
+                  fetchPriority="high"
+                  className="size-full object-cover"
+                />
+              </div>
+            </div>
+          ) : imageMode === 'cover' ? (
             <div data-arch className="arch relative mx-[6%] mt-[17%] aspect-[3/4] bg-blush">
               <div data-parallax className="h-[112%] will-change-transform">
                 <img

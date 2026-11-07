@@ -8,6 +8,7 @@ import result2 from '../assets/images/lash-lift/result-02.webp'
 import result3 from '../assets/images/lash-lift/result-03.webp'
 import result4 from '../assets/images/lash-lift/result-04.webp'
 import closeup from '../assets/images/lash-lift/closeup.webp'
+import heroEden from '../assets/images/lash-lift/hero-eden.webp'
 
 export const bookingUrl = 'https://calmark.io/p/kJFOt'
 
@@ -16,8 +17,8 @@ export const location = 'פתח תקווה, אם המושבות החדשה'
 export const hero = {
   title: ['הרמת', 'ריסים'],
   lead: 'טיפול שבו אני מרימה, מעגלת וצובעת את הריסים הטבעיות שלך.',
-  image: result1,
-  imageAlt: 'ריסים מורמים ומעוגלים אחרי טיפול הרמת ריסים',
+  image: heroEden,
+  imageAlt: 'עדן עם מברשת ריסים ורודה',
 }
 
 export const about = {
