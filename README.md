@@ -41,4 +41,4 @@ src/
 ## פרסום
 
 כל דחיפה לענף `claude/fervent-turing-ym3bos` בונה ומפרסמת את האתר אוטומטית ל־GitHub Pages
-(`.github/workflows/deploy.yml`). הכתובת: https://edenzi1234.github.io/beauty/
+(`.github/workflows/deploy.yml`). הכתובת: https://edenzi1234.github.io/Beauty/
