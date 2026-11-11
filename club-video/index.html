@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>EDEN BEAUTY CLUB – סרטון הסבר</title>
+<!--
+  25-second explainer for EDEN BEAUTY CLUB. One paused GSAP timeline drives every frame;
+  render.mjs seeks it frame by frame and ffmpeg encodes the MP4.
+  URL params: ?format=vertical (1080x1920) | landscape (1920x1080)
+              &preview=1  → shows the "pre-launch preview" tag (use until the club is verified live)
+              &play=1     → plays in real time in a browser (for review)
+-->
+<style>
+  @font-face { font-family: Heebo; font-weight: 400; src: url(node_modules/@fontsource/heebo/files/heebo-hebrew-400-normal.woff2) format('woff2'); }
+  @font-face { font-family: Heebo; font-weight: 400; src: url(node_modules/@fontsource/heebo/files/heebo-latin-400-normal.woff2) format('woff2'); unicode-range: U+0000-00FF, U+20AA; }
+  @font-face { font-family: Heebo; font-weight: 500; src: url(node_modules/@fontsource/heebo/files/heebo-hebrew-500-normal.woff2) format('woff2'); }
+  @font-face { font-family: Heebo; font-weight: 500; src: url(node_modules/@fontsource/heebo/files/heebo-latin-500-normal.woff2) format('woff2'); unicode-range: U+0000-00FF, U+20AA; }
+  @font-face { font-family: Heebo; font-weight: 700; src: url(node_modules/@fontsource/heebo/files/heebo-hebrew-700-normal.woff2) format('woff2'); }
+  @font-face { font-family: Heebo; font-weight: 700; src: url(node_modules/@fontsource/heebo/files/heebo-latin-700-normal.woff2) format('woff2'); unicode-range: U+0000-00FF, U+20AA; }
+  @font-face { font-family: Frank; font-weight: 500; src: url(node_modules/@fontsource/frank-ruhl-libre/files/frank-ruhl-libre-hebrew-500-normal.woff2) format('woff2'); }
+  @font-face { font-family: Frank; font-weight: 900; src: url(node_modules/@fontsource/frank-ruhl-libre/files/frank-ruhl-libre-hebrew-900-normal.woff2) format('woff2'); }
+  @font-face { font-family: Frank; font-weight: 900; src: url(node_modules/@fontsource/frank-ruhl-libre/files/frank-ruhl-libre-latin-900-normal.woff2) format('woff2'); unicode-range: U+0000-00FF, U+20AA; }
+  @font-face { font-family: Cinzel; font-weight: 600; src: url(node_modules/@fontsource/cinzel/files/cinzel-latin-600-normal.woff2) format('woff2'); }
+
+  :root {
+    --plum: #2a0f1a; --plum2: #4a1a2c; --rose: #c2456a; --blush: #ffc3cb; --blush2: #fde3ea;
+    --champ: #d9b48a; --gold: #e9c99a; --cream: #fff7f2;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: var(--plum); }
+  body { font-family: Heebo, sans-serif; color: var(--cream); -webkit-font-smoothing: antialiased; }
+
+  #stage { position: absolute; inset: 0; overflow: hidden; perspective: 1800px; }
+  /* u = 1% of the short side, so both formats share one design */
+  body.vertical { --u: 10.8px; } body.landscape { --u: 10.8px; }
+
+  /* ---------- background ---------- */
+  .bg { position: absolute; inset: -10%; background:
+      radial-gradient(60% 45% at 70% 20%, rgba(194, 69, 106, .55), transparent 70%),
+      radial-gradient(55% 40% at 20% 85%, rgba(217, 180, 138, .28), transparent 70%),
+      linear-gradient(160deg, #3b1424 0%, #220b15 55%, #170610 100%); }
+  .glow { position: absolute; width: calc(var(--u) * 90); aspect-ratio: 1; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 195, 203, .35), rgba(255, 195, 203, 0) 65%); filter: blur(10px); }
+  .spark { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: var(--gold);
+    box-shadow: 0 0 12px 3px rgba(233, 201, 154, .7); opacity: 0; }
+  .vignette { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(10, 2, 6, .65) 100%); pointer-events: none; }
+
+  /* ---------- layout: visual + caption ---------- */
+  .scene { position: absolute; inset: 0; display: flex; opacity: 0; transform-style: preserve-3d; }
+  body.vertical .scene { flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--u) * 7); padding: calc(var(--u) * 14) calc(var(--u) * 7) calc(var(--u) * 16); }
+  body.landscape .scene { flex-direction: row; align-items: center; justify-content: center; gap: calc(var(--u) * 10); padding: 0 calc(var(--u) * 12); }
+  .visual { position: relative; display: grid; place-items: center; transform-style: preserve-3d; flex: none; }
+  body.vertical .visual { width: calc(var(--u) * 86); height: calc(var(--u) * 92); }
+  body.landscape .visual { width: calc(var(--u) * 78); height: calc(var(--u) * 78); }
+  .cap { text-align: center; }
+  body.landscape .cap { text-align: right; width: calc(var(--u) * 70); }
+  .step { display: inline-flex; align-items: center; gap: calc(var(--u) * 1.4); font: 600 calc(var(--u) * 2.2)/1 Cinzel, serif; letter-spacing: .35em; color: var(--champ); direction: ltr; }
+  .step::before, .step::after { content: ""; width: calc(var(--u) * 5); height: 1px; background: linear-gradient(90deg, transparent, var(--champ)); }
+  .step::after { transform: scaleX(-1); }
+  body.landscape .step::after { display: none; }
+  .h { margin-top: calc(var(--u) * 2.4); font: 900 calc(var(--u) * 6.6)/1.08 Frank, serif; color: #fff; text-wrap: balance; }
+  .h em { font-style: normal; background: linear-gradient(180deg, #ffd6de, #f08aa6 60%, #d9b48a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .p { margin-top: calc(var(--u) * 2.2); font: 400 calc(var(--u) * 3)/1.45 Heebo, sans-serif; color: rgba(255, 240, 244, .82); text-wrap: balance; }
+  .p b { color: var(--gold); font-weight: 700; }
+  .fine { margin-top: calc(var(--u) * 1.6); font: 400 calc(var(--u) * 1.9)/1.4 Heebo, sans-serif; color: rgba(255, 230, 236, .55); }
+
+  /* ---------- 3D club card ---------- */
+  .card { position: absolute; width: calc(var(--u) * 64); aspect-ratio: 1.586; transform-style: preserve-3d; }
+  .face { position: absolute; inset: 0; border-radius: calc(var(--u) * 3.6); backface-visibility: hidden; overflow: hidden;
+    box-shadow: 0 calc(var(--u) * 4) calc(var(--u) * 10) rgba(0, 0, 0, .45), inset 0 0 0 1px rgba(255, 255, 255, .25); }
+  .face.front { background:
+      radial-gradient(120% 90% at 85% 10%, #ffe1e7 0%, rgba(255, 225, 231, 0) 55%),
+      linear-gradient(135deg, #f6b3c2 0%, #e07c98 38%, #b8395f 72%, #7c1f3e 100%); }
+  .face.back { transform: rotateY(180deg); background: linear-gradient(135deg, #f8e6cf 0%, #e3c193 45%, #b98b5a 100%); }
+  .face .sheen { position: absolute; inset: -50%; background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, .55) 50%, transparent 60%); transform: translateX(-60%); }
+  .card .brand { position: absolute; top: 12%; inset-inline-end: 8%; direction: ltr; text-align: left; font: 600 calc(var(--u) * 2)/1 Cinzel, serif; letter-spacing: .32em; color: rgba(255, 255, 255, .9); }
+  .card .club { position: absolute; bottom: 14%; inset-inline-end: 8%; direction: ltr; text-align: left; font: 900 calc(var(--u) * 5.6)/.95 Frank, serif; color: #fff; text-shadow: 0 2px 18px rgba(90, 10, 40, .35); }
+  .card .club small { display: block; margin-top: calc(var(--u) * 1.2); font: 600 calc(var(--u) * 1.7)/1 Cinzel, serif; letter-spacing: .45em; color: #ffe6ec; }
+  .card .chipx { position: absolute; top: 34%; left: 8%; width: 13%; aspect-ratio: 1.3; border-radius: calc(var(--u) * .9);
+    background: linear-gradient(135deg, #fbe7c8, #d6a96e 55%, #f7dcb1); box-shadow: inset 0 0 0 1px rgba(120, 80, 30, .35); }
+  .card .member { position: absolute; bottom: 14%; right: 8%; font: 500 calc(var(--u) * 2)/1.2 Heebo, sans-serif; color: rgba(255, 255, 255, .85); text-align: right; }
+  .card .back-big { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: #5a3416; }
+  .card .back-big b { display: block; font: 900 calc(var(--u) * 13)/1 Frank, serif; direction: ltr; }
+  .card .back-big span { font: 600 calc(var(--u) * 2.2)/1 Cinzel, serif; letter-spacing: .4em; direction: ltr; }
+  .shadow { position: absolute; bottom: 4%; width: 60%; height: 6%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .55), transparent); filter: blur(6px); }
+
+  /* ---------- phone ---------- */
+  .phone { position: absolute; width: calc(var(--u) * 42); aspect-ratio: .49; border-radius: calc(var(--u) * 6.5); padding: calc(var(--u) * 1.4);
+    background: linear-gradient(145deg, #3a2a30, #120a0d); box-shadow: 0 calc(var(--u) * 5) calc(var(--u) * 12) rgba(0, 0, 0, .55), inset 0 0 0 2px rgba(233, 201, 154, .35); transform-style: preserve-3d; }
+  .screen { position: relative; width: 100%; height: 100%; border-radius: calc(var(--u) * 5.2); overflow: hidden; background: linear-gradient(180deg, #fff 0%, #fdf2f5 100%); color: #4a1f2e; }
+  .notch { position: absolute; top: calc(var(--u) * 1.4); left: 50%; width: 32%; height: calc(var(--u) * 2.6); transform: translateX(-50%); border-radius: 99px; background: #120a0d; z-index: 3; }
+  .scr { position: absolute; inset: 0; padding: calc(var(--u) * 7) calc(var(--u) * 3.2) calc(var(--u) * 3); display: flex; flex-direction: column; gap: calc(var(--u) * 1.8); }
+  .scr .logo { text-align: center; direction: ltr; font: 600 calc(var(--u) * 1.6)/1 Cinzel, serif; letter-spacing: .3em; color: var(--rose); }
+  .scr .t { text-align: center; font: 900 calc(var(--u) * 3.3)/1.15 Frank, serif; color: #8d2b4c; }
+  .scr .s { text-align: center; font: 400 calc(var(--u) * 1.75)/1.4 Heebo, sans-serif; color: #8d5a6a; }
+  .field { height: calc(var(--u) * 5.6); border-radius: calc(var(--u) * 1.6); border: 1.5px solid #ecc9d3; background: #fff; display: flex; align-items: center; padding: 0 calc(var(--u) * 1.8);
+    font: 400 calc(var(--u) * 1.9)/1 Heebo, sans-serif; color: #4a1f2e; direction: ltr; justify-content: flex-start; }
+  .field .caret { width: 2px; height: 50%; background: var(--rose); margin-left: 2px; }
+  .btn { height: calc(var(--u) * 5.8); border-radius: 99px; display: grid; place-items: center; background: linear-gradient(135deg, #d4587d, #b23a60); color: #fff;
+    font: 700 calc(var(--u) * 2.1)/1 Heebo, sans-serif; box-shadow: 0 calc(var(--u) * 1.2) calc(var(--u) * 3) rgba(194, 69, 106, .35); }
+  .tap { position: absolute; width: calc(var(--u) * 7); aspect-ratio: 1; border-radius: 50%; border: 3px solid rgba(194, 69, 106, .8); opacity: 0; pointer-events: none; }
+  .welcome { position: absolute; inset: 0; display: grid; place-content: center; gap: calc(var(--u) * 2); text-align: center; background: linear-gradient(180deg, #fff, #fde3ea); opacity: 0; }
+  .check { width: calc(var(--u) * 12); aspect-ratio: 1; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, #e07c98, #b8395f); box-shadow: 0 0 0 calc(var(--u) * 1.6) rgba(224, 124, 152, .18); }
+  .check svg { width: 50%; }
+  .check path { stroke: #fff; stroke-width: 5; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 60; }
+
+  /* checkout screen */
+  .row { display: flex; justify-content: space-between; align-items: center; font: 400 calc(var(--u) * 1.9)/1.2 Heebo, sans-serif; color: #6b3a4a; }
+  .row b { font-weight: 700; color: #4a1f2e; }
+  .line { height: 1px; background: #f0d5dd; }
+  .credit { border-radius: calc(var(--u) * 2); padding: calc(var(--u) * 2); background: linear-gradient(135deg, #fff, #fde3ea 60%, #f6e9da); border: 1.5px solid #e9c9a8; display: flex; align-items: center; gap: calc(var(--u) * 1.6); }
+  .credit .ic { width: calc(var(--u) * 5); aspect-ratio: 1; border-radius: 50%; flex: none; display: grid; place-items: center; background: linear-gradient(135deg, #f2d3a7, #c99a62); color: #5a3416; font: 900 calc(var(--u) * 2.4)/1 Frank, serif; }
+  .credit .tx { flex: 1; font: 500 calc(var(--u) * 1.75)/1.3 Heebo, sans-serif; color: #6b3a4a; }
+  .credit .tx b { display: block; font: 700 calc(var(--u) * 2.2)/1.2 Heebo, sans-serif; color: #8d2b4c; }
+  .toggle { width: calc(var(--u) * 6.4); height: calc(var(--u) * 3.6); border-radius: 99px; background: #e8cfd6; position: relative; flex: none; }
+  .toggle i { position: absolute; top: 12%; right: 6%; width: calc(var(--u) * 2.8); aspect-ratio: 1; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .2); }
+  .total { font: 900 calc(var(--u) * 3)/1 Frank, serif; color: #8d2b4c; }
+  .applied { color: #2e8a5a !important; }
+
+  /* ---------- 400 → 12 ---------- */
+  .calc { position: absolute; inset: 0; display: grid; place-items: center; }
+  .receipt { position: absolute; width: calc(var(--u) * 46); padding: calc(var(--u) * 4) calc(var(--u) * 4) calc(var(--u) * 5); border-radius: calc(var(--u) * 2.6);
+    background: linear-gradient(180deg, #fffaf7, #fbeef0); color: #4a1f2e; box-shadow: 0 calc(var(--u) * 4) calc(var(--u) * 10) rgba(0, 0, 0, .45); transform-style: preserve-3d; }
+  .receipt .lbl { font: 600 calc(var(--u) * 1.7)/1 Cinzel, serif; letter-spacing: .3em; color: #b98b5a; direction: ltr; text-align: center; }
+  .receipt .amt { margin-top: calc(var(--u) * 2); text-align: center; font: 900 calc(var(--u) * 12)/1 Frank, serif; color: #8d2b4c; }
+  .receipt .sub { margin-top: calc(var(--u) * 1.4); text-align: center; font: 400 calc(var(--u) * 1.9)/1.3 Heebo, sans-serif; color: #8d5a6a; }
+  .pct { position: absolute; font: 900 calc(var(--u) * 9)/1 Frank, serif; color: var(--gold); text-shadow: 0 0 30px rgba(233, 201, 154, .6); direction: ltr; opacity: 0; }
+  .coin { position: absolute; width: calc(var(--u) * 26); aspect-ratio: 1; transform-style: preserve-3d; opacity: 0; }
+  .coin .cf { position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center; backface-visibility: hidden;
+    background: radial-gradient(circle at 35% 30%, #fff1d6 0%, #f0cf98 35%, #c8935a 75%, #9c6a36 100%);
+    box-shadow: inset 0 0 0 calc(var(--u) * 1) rgba(255, 240, 210, .55), inset 0 0 0 calc(var(--u) * 1.6) rgba(140, 90, 40, .35), 0 calc(var(--u) * 3) calc(var(--u) * 7) rgba(0, 0, 0, .45); }
+  .coin .cf.b { transform: rotateY(180deg); }
+  .coin .cf span { font: 900 calc(var(--u) * 7.6)/1 Frank, serif; color: #5a3416; text-shadow: 0 1px 0 rgba(255, 255, 255, .5); }
+  .coin .cf small { display: block; text-align: center; font: 600 calc(var(--u) * 1.4)/1 Cinzel, serif; letter-spacing: .3em; color: #6e4520; direction: ltr; margin-top: calc(var(--u) * .8); }
+
+  /* ---------- wallet ---------- */
+  .wallet { position: absolute; width: calc(var(--u) * 58); aspect-ratio: 1.45; transform-style: flat; }
+  .wallet .wb { position: absolute; inset: 0; border-radius: calc(var(--u) * 4); background: linear-gradient(150deg, #7a2343 0%, #4c1428 60%, #2f0c19 100%);
+    box-shadow: 0 calc(var(--u) * 5) calc(var(--u) * 12) rgba(0, 0, 0, .55), inset 0 0 0 1.5px rgba(233, 201, 154, .45); }
+  .wallet .stitch { position: absolute; inset: calc(var(--u) * 1.6); border-radius: calc(var(--u) * 3); border: 1.5px dashed rgba(233, 201, 154, .35); }
+  .wallet .pocket { position: absolute; left: 0; right: 0; bottom: 0; height: 58%; border-radius: 0 0 calc(var(--u) * 4) calc(var(--u) * 4); background: linear-gradient(180deg, #8e2c50, #5a1730);
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, .25), inset 0 1.5px 0 rgba(233, 201, 154, .5); z-index: 4; }
+  .wallet .bal { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-top: 6%; }
+  .wallet .bal small { font: 500 calc(var(--u) * 2.1)/1 Heebo, sans-serif; color: rgba(255, 230, 236, .8); }
+  .wallet .bal b { margin-top: calc(var(--u) * 1.4); font: 900 calc(var(--u) * 10)/1 Frank, serif; background: linear-gradient(180deg, #fff3dd, #e9c99a 60%, #c8935a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .wallet .clasp { position: absolute; top: 34%; left: -2%; width: 14%; height: 22%; border-radius: calc(var(--u) * 1.6); background: linear-gradient(135deg, #f2d3a7, #b98b5a); box-shadow: 0 4px 10px rgba(0, 0, 0, .3); z-index: 5; }
+  .wallet .peek { position: absolute; top: -14%; left: 14%; width: 60%; z-index: 1; }
+  .wallet .peek .card { position: relative; width: 100%; }
+  .mini { position: absolute; width: calc(var(--u) * 10); aspect-ratio: 1; border-radius: 50%; z-index: 3; opacity: 0;
+    background: radial-gradient(circle at 35% 30%, #fff1d6 0%, #f0cf98 35%, #c8935a 75%, #9c6a36 100%); box-shadow: inset 0 0 0 calc(var(--u) * .5) rgba(255, 240, 210, .55), 0 8px 18px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; font: 900 calc(var(--u) * 3.6)/1 Frank, serif; color: #5a3416; }
+  .acct { position: absolute; top: 2%; display: inline-flex; align-items: center; gap: calc(var(--u) * 1.2); padding: calc(var(--u) * 1.2) calc(var(--u) * 2.4); border-radius: 99px;
+    background: rgba(255, 255, 255, .08); border: 1px solid rgba(233, 201, 154, .35); font: 500 calc(var(--u) * 2)/1 Heebo, sans-serif; color: rgba(255, 240, 244, .9); opacity: 0; }
+
+  /* ---------- end ---------- */
+  .wordmark { direction: ltr; text-align: center; }
+  .wordmark .eden { font: 900 calc(var(--u) * 15)/.9 Frank, serif; letter-spacing: .06em; background: linear-gradient(180deg, #fff 0%, #ffd6de 55%, #e9c99a 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .wordmark .bs { margin-top: calc(var(--u) * 1.6); font: 600 calc(var(--u) * 2.4)/1 Cinzel, serif; letter-spacing: .6em; color: var(--champ); }
+  .cta { display: inline-grid; place-items: center; margin-top: calc(var(--u) * 4); height: calc(var(--u) * 8.6); padding: 0 calc(var(--u) * 6); border-radius: 99px;
+    background: linear-gradient(135deg, #ffd6de, #e98ba5 45%, #c2456a); color: #fff; font: 700 calc(var(--u) * 3.1)/1 Heebo, sans-serif;
+    box-shadow: 0 calc(var(--u) * 2) calc(var(--u) * 6) rgba(194, 69, 106, .5), inset 0 1px 0 rgba(255, 255, 255, .5); position: relative; overflow: hidden; }
+  .cta .sheen { position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .6) 50%, transparent 65%); transform: translateX(-120%); }
+  .url { margin-top: calc(var(--u) * 2.4); direction: ltr; font: 500 calc(var(--u) * 2.2)/1 Heebo, sans-serif; letter-spacing: .08em; color: rgba(255, 230, 236, .7); }
+  #end { flex-direction: column !important; text-align: center; gap: 0 !important; }
+  #end .card-wrap { position: relative; width: calc(var(--u) * 64); height: calc(var(--u) * 40.4); transform-style: preserve-3d; margin-bottom: calc(var(--u) * 6); }
+  body.landscape #end .card-wrap { transform: scale(.66); margin: calc(var(--u) * -6) 0 calc(var(--u) * -4); }
+  body.landscape .visual { transform: scale(.84); }
+  body.landscape #end .wordmark .eden { font-size: calc(var(--u) * 11); }
+
+  /* ---------- intro ---------- */
+  #intro { flex-direction: column !important; text-align: center; gap: calc(var(--u) * 6) !important; }
+  #intro .card-wrap { position: relative; width: calc(var(--u) * 64); height: calc(var(--u) * 40.4); transform-style: preserve-3d; }
+  .kick { font: 600 calc(var(--u) * 2.2)/1 Cinzel, serif; letter-spacing: .5em; color: var(--champ); direction: ltr; }
+  .title { margin-top: calc(var(--u) * 2.4); font: 900 calc(var(--u) * 7.4)/1.05 Frank, serif; color: #fff; }
+  .title em { font-style: normal; background: linear-gradient(180deg, #ffd6de, #f08aa6 60%, #d9b48a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lt { display: inline-block; }
+
+  /* ---------- pre-launch tag ---------- */
+  .prelaunch { position: absolute; top: calc(var(--u) * 4); left: 50%; transform: translateX(-50%); z-index: 20; display: none; padding: calc(var(--u) * 1) calc(var(--u) * 2.4); border-radius: 99px;
+    background: rgba(20, 5, 12, .55); border: 1px solid rgba(233, 201, 154, .5); font: 500 calc(var(--u) * 1.8)/1 Heebo, sans-serif; color: var(--gold); white-space: nowrap; }
+  body.preview .prelaunch { display: block; }
+  .progress { position: absolute; bottom: calc(var(--u) * 5); left: 50%; transform: translateX(-50%); display: flex; gap: calc(var(--u) * 1.2); z-index: 10; }
+  .progress i { width: calc(var(--u) * 5); height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .2); overflow: hidden; position: relative; }
+  .progress i b { position: absolute; inset: 0; background: var(--gold); transform-origin: right; transform: scaleX(0); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="bg"></div>
+  <div class="glow" id="glowA"></div>
+  <div class="glow" id="glowB"></div>
+  <div id="sparks"></div>
+
+  <!-- 1 · intro -->
+  <section class="scene" id="intro">
+    <div class="card-wrap"><div class="card" id="introCard">
+      <div class="face front"><div class="chipx"></div><div class="brand">EDEN BEAUTY SHOP</div><div class="club">EDEN BEAUTY<br>CLUB<small>MEMBER</small></div><div class="sheen"></div></div>
+      <div class="face back"><div class="back-big"><div><b>3%</b><span>CASHBACK</span></div></div><div class="sheen"></div></div>
+    </div></div>
+    <div>
+      <p class="kick">EDEN BEAUTY SHOP</p>
+      <h1 class="title" id="introTitle"><span class="lt">מועדון</span> <span class="lt">הלקוחות</span> <span class="lt"><em>החדש</em></span> <span class="lt">שלנו</span></h1>
+    </div>
+  </section>
+
+  <!-- 2 · join -->
+  <section class="scene" id="join">
+    <div class="visual">
+      <div class="phone" id="phone1"><div class="screen"><div class="notch"></div>
+        <div class="scr">
+          <p class="logo">EDEN BEAUTY CLUB</p>
+          <p class="t">כניסה לחשבון</p>
+          <p class="s">הכניסי את כתובת המייל שלך ונשלח לך קוד</p>
+          <div class="field"><span id="typed"></span><span class="caret" id="caret"></span></div>
+          <div class="btn" id="joinBtn">הצטרפות למועדון</div>
+          <p class="s">ההצטרפות חינם</p>
+        </div>
+        <div class="tap" id="tap1"></div>
+        <div class="welcome" id="welcome">
+          <div class="check"><svg viewBox="0 0 40 40"><path d="M10 21l7 7 14-15"/></svg></div>
+          <p class="t">ברוכה הבאה למועדון</p>
+          <p class="s">מעכשיו כל קנייה מחזירה לך כסף</p>
+        </div>
+      </div></div>
+    </div>
+    <div class="cap">
+      <p class="step">STEP 01</p>
+      <h2 class="h">נרשמות <em>בחינם</em></h2>
+      <p class="p">נכנסות לחשבון באתר עם כתובת המייל – וזהו, את חברת מועדון.</p>
+    </div>
+  </section>
+
+  <!-- 3 · earn -->
+  <section class="scene" id="earn">
+    <div class="visual">
+      <div class="calc">
+        <div class="receipt" id="receipt">
+          <p class="lbl">YOUR ORDER</p>
+          <p class="amt"><span id="amt">0</span> ₪</p>
+          <p class="sub">סכום המוצרים ששולם</p>
+        </div>
+        <div class="pct" id="pct">× 3%</div>
+        <div class="coin" id="coin">
+          <div class="cf"><div><span>12 ₪</span><small>CREDIT</small></div></div>
+          <div class="cf b"><div><span>3%</span><small>CASHBACK</small></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="cap">
+      <p class="step">STEP 02</p>
+      <h2 class="h">כל קנייה מחזירה לך <em>3%</em></h2>
+      <p class="p">קנייה של <b>400 ₪</b> = <b>12 ₪</b> קרדיט לקנייה הבאה</p>
+      <p class="fine">3% מהסכום ששולם על המוצרים, לא כולל משלוח</p>
+    </div>
+  </section>
+
+  <!-- 4 · wallet -->
+  <section class="scene" id="wallet">
+    <div class="visual">
+      <div class="acct" id="acct">✦ האזור האישי שלי</div>
+      <div class="wallet" id="walletObj">
+        <div class="peek"><div class="card"><div class="face front"><div class="brand">EDEN BEAUTY SHOP</div><div class="club" style="font-size:calc(var(--u)*3.2)">EDEN BEAUTY<br>CLUB</div></div></div></div>
+        <div class="wb"><div class="stitch"></div></div>
+        <div class="mini" id="m1">₪</div><div class="mini" id="m2">₪</div><div class="mini" id="m3">₪</div>
+        <div class="pocket"><div class="bal"><small>היתרה שלך</small><b><span id="bal">0.00</span> ₪</b></div></div>
+        <div class="clasp"></div>
+      </div>
+    </div>
+    <div class="cap">
+      <p class="step">YOUR WALLET</p>
+      <h2 class="h">הקרדיט <em>נשמר</em> בחשבון שלך</h2>
+      <p class="p">היתרה מצטברת מקנייה לקנייה, ותמיד אפשר לראות אותה באזור האישי.</p>
+    </div>
+  </section>
+
+  <!-- 5 · redeem -->
+  <section class="scene" id="redeem">
+    <div class="visual">
+      <div class="phone" id="phone2"><div class="screen"><div class="notch"></div>
+        <div class="scr">
+          <p class="logo">EDEN BEAUTY SHOP</p>
+          <p class="t">תשלום</p>
+          <div class="row"><span>מוצרים</span><b>250.00 ₪</b></div>
+          <div class="row"><span>משלוח</span><b>30.00 ₪</b></div>
+          <div class="credit">
+            <div class="ic">₪</div>
+            <div class="tx"><b>יתרת קרדיט: 12.00 ₪</b><span id="creditState">את מחוברת לחשבון ✓</span></div>
+            <div class="toggle" id="toggle"><i id="knob"></i></div>
+          </div>
+          <div class="row" id="creditRow" style="opacity:0"><span class="applied">קרדיט EDEN CLUB</span><b class="applied">−12.00 ₪</b></div>
+          <div class="line"></div>
+          <div class="row"><span>לתשלום</span><span class="total"><span id="tot">280.00</span> ₪</span></div>
+          <div class="btn">לתשלום</div>
+        </div>
+        <div class="tap" id="tap2"></div>
+      </div></div>
+    </div>
+    <div class="cap">
+      <p class="step">STEP 03</p>
+      <h2 class="h">מממשות <em>בלחיצה</em></h2>
+      <p class="p">בקנייה הבאה, כשאת מחוברת – הקרדיט מופיע בקופה. בלי קוד קופון.</p>
+    </div>
+  </section>
+
+  <!-- 6 · end -->
+  <section class="scene" id="end">
+    <div class="card-wrap"><div class="card" id="endCard">
+      <div class="face front"><div class="chipx"></div><div class="brand">EDEN BEAUTY SHOP</div><div class="club">EDEN BEAUTY<br>CLUB<small>MEMBER</small></div><div class="sheen"></div></div>
+      <div class="face back"><div class="back-big"><div><b>3%</b><span>CASHBACK</span></div></div><div class="sheen"></div></div>
+    </div></div>
+    <div class="wordmark" id="logo"><div class="eden">EDEN</div><div class="bs">BEAUTY SHOP</div></div>
+    <div class="cta" id="cta"><span>הצטרפי עכשיו ל־EDEN BEAUTY CLUB</span><i class="sheen"></i></div>
+    <p class="url" id="url">edenbeautyshop.co.il</p>
+  </section>
+
+  <div class="vignette"></div>
+  <div class="progress" id="progress"><i><b></b></i><i><b></b></i><i><b></b></i></div>
+  <div class="prelaunch">הדמיה · המועדון יושק בקרוב</div>
+</div>
+
+<script src="node_modules/gsap/dist/gsap.min.js"></script>
+<script>
+(() => {
+  const q = new URLSearchParams(location.search);
+  const format = q.get('format') === 'landscape' ? 'landscape' : 'vertical';
+  document.body.classList.add(format);
+  if (q.get('preview') === '1') document.body.classList.add('preview');
+
+  // deterministic sparkles
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const sparks = document.getElementById('sparks');
+  for (let i = 0; i < 46; i++) {
+    const s = document.createElement('i'); s.className = 'spark';
+    s.style.left = (rnd() * 100) + '%'; s.style.top = (rnd() * 100) + '%';
+    const k = .4 + rnd() * 1.1; s.style.width = s.style.height = (4 * k) + 'px';
+    s.dataset.d = rnd(); sparks.appendChild(s);
+  }
+
+  const $ = id => document.getElementById(id);
+  const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
+  const ease = 'expo.inOut';
+
+  // ambient (whole film)
+  tl.fromTo('#glowA', { xPercent: -10, yPercent: -20, x: '-20vw', y: '-10vh' }, { x: '45vw', y: '35vh', duration: 25, ease: 'sine.inOut' }, 0);
+  tl.fromTo('#glowB', { x: '60vw', y: '70vh', scale: .8 }, { x: '0vw', y: '10vh', scale: 1.2, duration: 25, ease: 'sine.inOut' }, 0);
+  document.querySelectorAll('.spark').forEach((s, i) => {
+    const d = +s.dataset.d, start = d * 4;
+    tl.fromTo(s, { opacity: 0, y: 0 }, { opacity: .9, y: -60 - d * 80, duration: 3, ease: 'sine.inOut', repeat: 5, yoyo: true }, start);
+  });
+
+  const sceneIn = (id, at) => tl.fromTo('#' + id, { opacity: 0 }, { opacity: 1, duration: .6, ease: 'power2.out' }, at);
+  const sceneOut = (id, at) => tl.to('#' + id, { opacity: 0, duration: .5, ease: 'power2.in' }, at);
+  const capIn = (id, at) => tl.from('#' + id + ' .cap > *', { y: 40, opacity: 0, duration: .9, stagger: .12 }, at);
+
+  // 1 · intro 0 – 3.6
+  sceneIn('intro', 0);
+  tl.fromTo('#introCard', { rotationY: -160, rotationX: 22, z: -900, y: 120, opacity: 0 },
+    { rotationY: 20, rotationX: 8, z: 0, y: 0, opacity: 1, duration: 2.2, ease: 'expo.out' }, .1);
+  tl.to('#introCard', { rotationY: -14, rotationX: -4, duration: 1.4, ease: 'sine.inOut' }, 2.3);
+  tl.fromTo('#introCard .front .sheen', { xPercent: -60 }, { xPercent: 60, duration: 1.4, ease: 'power2.inOut' }, 1.3);
+  tl.from('#intro .kick', { opacity: 0, letterSpacing: '1.2em', duration: 1.4 }, .6);
+  tl.from('#introTitle .lt', { y: 60, opacity: 0, rotationX: -60, duration: .9, stagger: .12 }, .9);
+  sceneOut('intro', 3.3);
+
+  // 2 · join 3.6 – 8.2
+  sceneIn('join', 3.6);
+  tl.from('#phone1', { rotationY: 35, rotationX: 8, y: 160, z: -300, opacity: 0, duration: 1.2, ease: 'expo.out' }, 3.6);
+  tl.to('#phone1', { rotationY: -8, duration: 4, ease: 'sine.inOut' }, 4.6);
+  capIn('join', 3.9);
+  const email = 'noa@gmail.com', typing = { n: 0 };
+  tl.to(typing, { n: email.length, duration: 1.3, ease: 'none' }, 4.6);
+  tl.fromTo('#tap1', { opacity: 0, scale: .4 }, { opacity: 1, scale: 1, duration: .25 }, 6.0);
+  tl.to('#tap1', { opacity: 0, scale: 1.6, duration: .35 }, 6.25);
+  tl.to('#joinBtn', { scale: .94, duration: .12, yoyo: true, repeat: 1 }, 6.0);
+  tl.to('#welcome', { opacity: 1, duration: .45 }, 6.35);
+  tl.from('#welcome .check', { scale: .3, duration: .7, ease: 'back.out(2)' }, 6.4);
+  tl.to('#welcome .check path', { strokeDashoffset: 0, duration: .5, ease: 'power2.out' }, 6.7);
+  tl.from('#welcome .t, #welcome .s', { y: 20, opacity: 0, duration: .5, stagger: .1 }, 6.8);
+  sceneOut('join', 7.8);
+
+  // 3 · earn 8.2 – 13.8
+  sceneIn('earn', 8.2);
+  capIn('earn', 8.4);
+  tl.from('#receipt', { rotationX: 70, y: 140, z: -400, opacity: 0, duration: 1.1, ease: 'expo.out' }, 8.2);
+  const amount = { v: 0 };
+  tl.to(amount, { v: 400, duration: 1.3, ease: 'power2.out' }, 8.7);
+  const below = () => document.getElementById('receipt').offsetHeight * .5 + document.getElementById('pct').offsetHeight * .9;
+  tl.fromTo('#pct', { opacity: 0, scale: 2.2, y: below }, { opacity: 1, scale: 1, duration: .6, ease: 'back.out(1.6)' }, 10.1);
+  tl.to('#pct', { y: 0, scale: .3, duration: .55, ease: 'power3.in' }, 10.85);
+  tl.to('#pct', { opacity: 0, duration: .15 }, 11.25);
+  tl.to('#receipt', { scale: .2, rotationY: 90, opacity: 0, duration: .6, ease: 'power3.in' }, 11.0);
+  tl.fromTo('#coin', { opacity: 0, scale: .2, rotationY: -540 }, { opacity: 1, scale: 1, rotationY: 0, duration: 1.5, ease: 'expo.out' }, 11.35);
+  tl.to('#coin', { rotationY: 20, y: -14, duration: 1, ease: 'sine.inOut' }, 12.85);
+  sceneOut('earn', 13.4);
+
+  // 4 · wallet 13.8 – 17.8
+  sceneIn('wallet', 13.8);
+  capIn('wallet', 14.0);
+  tl.from('#walletObj', { rotationX: 40, rotationY: -20, y: 120, z: -300, opacity: 0, duration: 1.1, ease: 'expo.out' }, 13.8);
+  tl.to('#walletObj', { rotationY: 10, rotationX: 6, duration: 3, ease: 'sine.inOut' }, 14.9);
+  ['m1', 'm2', 'm3'].forEach((m, i) => {
+    const at = 14.5 + i * .32, x = (i - 1) * 9;
+    tl.fromTo('#' + m, { opacity: 0, x: x + 'vmin', y: '-34vmin', left: '45%', top: '20%', rotation: -40 + i * 30 },
+      { opacity: 1, y: '6vmin', rotation: 0, duration: .55, ease: 'power2.in' }, at);
+    tl.to('#' + m, { opacity: 0, duration: .12 }, at + .55);
+  });
+  const bal = { v: 0 };
+  tl.to(bal, { v: 12, duration: 1.1, ease: 'power2.out' }, 15.0);
+  tl.fromTo('#acct', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: .6 }, 15.4);
+  sceneOut('wallet', 17.4);
+
+  // 5 · redeem 17.8 – 21.8
+  sceneIn('redeem', 17.8);
+  capIn('redeem', 18.0);
+  tl.from('#phone2', { rotationY: -35, rotationX: 8, y: 160, z: -300, opacity: 0, duration: 1.1, ease: 'expo.out' }, 17.8);
+  tl.to('#phone2', { rotationY: 8, duration: 3.6, ease: 'sine.inOut' }, 18.9);
+  tl.fromTo('#tap2', { opacity: 0, scale: .4 }, { opacity: 1, scale: 1, duration: .25 }, 19.2);
+  tl.to('#tap2', { opacity: 0, scale: 1.6, duration: .35 }, 19.45);
+  tl.to('#toggle', { backgroundColor: '#c2456a', duration: .3 }, 19.3);
+  tl.to('#knob', { right: '50%', duration: .3, ease: 'power2.inOut' }, 19.3);
+  tl.to('#creditRow', { opacity: 1, duration: .4 }, 19.5);
+  const total = { v: 280 };
+  tl.to(total, { v: 268, duration: .8, ease: 'power2.out' }, 19.6);
+  tl.fromTo('#tot', { scale: 1 }, { scale: 1.18, duration: .2, yoyo: true, repeat: 1, transformOrigin: 'center' }, 20.3);
+  sceneOut('redeem', 21.4);
+
+  // 6 · end 21.8 – 25
+  sceneIn('end', 21.8);
+  tl.fromTo('#endCard', { rotationY: 200, rotationX: 15, z: -600, opacity: 0 }, { rotationY: 0, rotationX: 4, z: 0, opacity: 1, duration: 1.8, ease: 'expo.out' }, 21.8);
+  tl.fromTo('#endCard .front .sheen', { xPercent: -60 }, { xPercent: 60, duration: 1.2, ease: 'power2.inOut' }, 23.0);
+  tl.from('#logo', { opacity: 0, y: 30, letterSpacing: '.4em', duration: 1.1 }, 22.3);
+  tl.from('#cta', { opacity: 0, y: 30, scale: .9, duration: .8, ease: 'back.out(1.6)' }, 22.9);
+  tl.fromTo('#cta .sheen', { xPercent: -120 }, { xPercent: 120, duration: 1, ease: 'power2.inOut' }, 23.7);
+  tl.from('#url', { opacity: 0, duration: .8 }, 23.4);
+  tl.to({}, { duration: .01 }, 24.99);
+
+  // progress bars for the three steps
+  const bars = document.querySelectorAll('.progress b');
+  [[3.6, 8.2], [8.2, 17.8], [17.8, 21.8]].forEach(([a, b], i) => tl.fromTo(bars[i], { scaleX: 0 }, { scaleX: 1, duration: b - a, ease: 'none' }, a));
+  tl.fromTo('#progress', { opacity: 0 }, { opacity: 1, duration: .4 }, 3.6);
+  tl.to('#progress', { opacity: 0, duration: .4 }, 21.6);
+
+  // text driven by proxies (so seeking renders the right digits)
+  const fmt = v => v.toFixed(2);
+  function sync() {
+    $('typed').textContent = email.slice(0, Math.round(typing.n));
+    $('caret').style.opacity = (Math.floor(tl.time() * 2.2) % 2 || typing.n < email.length) ? 1 : 0;
+    $('amt').textContent = Math.round(amount.v);
+    $('bal').textContent = fmt(bal.v);
+    $('tot').textContent = fmt(total.v);
+  }
+  tl.eventCallback('onUpdate', sync);
+
+  window.__duration = 25;
+  window.__seek = t => { tl.seek(t, false); sync(); };
+  window.__ready = document.fonts.ready.then(() => { window.__seek(0); return true; });
+  if (q.get('play') === '1') window.__ready.then(() => tl.play(0));
+  else if (q.has('t')) window.__ready.then(() => window.__seek(parseFloat(q.get('t'))));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "eden-club-video",
+  "private": true,
+  "type": "module",
+  "scripts": { "render": "node render.mjs" },
+  "dependencies": {
+    "@fontsource/cinzel": "^5.0.0",
+    "@fontsource/frank-ruhl-libre": "^5.0.0",
+    "@fontsource/heebo": "^5.0.0",
+    "gsap": "^3.12.0"
+  }
+}

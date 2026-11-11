@@ -1,0 +1,107 @@
+{%- comment -%}
+  EDEN BEAUTY CLUB – video + join section. Self-contained (own CSS), RTL.
+  The video is a Shopify-hosted file (Content → Files) chosen in the theme editor; on phones the 9:16 version plays,
+  on larger screens the 16:9 one. While "prelaunch" is on, the section says the club opens soon and the button
+  does not claim the benefit is active.
+{%- endcomment -%}
+{%- liquid
+  assign s = section.settings
+  assign club_url = s.club_page.url | default: '/pages/eden-club'
+  if customer
+    assign join_url = club_url
+    assign join_label = s.button_member
+  else
+    assign join_url = routes.account_login_url
+    assign join_label = s.button
+  endif
+-%}
+<section class="ecv" id="ecv-{{ section.id }}" {{ section.shopify_attributes }}>
+  <div class="ecv-wrap">
+    <div class="ecv-media">
+      {%- if s.video_vertical != blank or s.video_landscape != blank -%}
+        {%- if s.video_vertical != blank -%}
+          <div class="ecv-video ecv-video--v">
+            {{ s.video_vertical | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: true, preload: 'metadata', image_size: '1080x' }}
+          </div>
+        {%- endif -%}
+        {%- if s.video_landscape != blank -%}
+          <div class="ecv-video ecv-video--h{% if s.video_vertical == blank %} ecv-video--only{% endif %}">
+            {{ s.video_landscape | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: true, preload: 'metadata', image_size: '1920x' }}
+          </div>
+        {%- endif -%}
+      {%- else -%}
+        <div class="ecv-empty">בחרי את קובץ הסרטון בהגדרות הסקשן</div>
+      {%- endif -%}
+    </div>
+
+    <div class="ecv-copy">
+      <p class="ecv-kicker">EDEN BEAUTY CLUB</p>
+      {%- if s.prelaunch -%}<p class="ecv-soon">בקרוב</p>{%- endif -%}
+      <h2 class="ecv-title">{{ s.heading }}</h2>
+      <p class="ecv-text">{{ s.text }}</p>
+      <ol class="ecv-steps">
+        <li><b>01</b><span>נרשמות בחינם עם כתובת מייל</span></li>
+        <li><b>02</b><span>3% מכל קנייה חוזרים אלייך כקרדיט – קנייה של 400 ₪ = 12 ₪</span></li>
+        <li><b>03</b><span>מממשות בקופה בקנייה הבאה, כשאת מחוברת</span></li>
+      </ol>
+      {%- if s.prelaunch -%}
+        <span class="ecv-btn is-soon" aria-disabled="true">{{ s.button_soon }}</span>
+      {%- else -%}
+        <a class="ecv-btn" href="{{ join_url }}">{{ join_label }}</a>
+      {%- endif -%}
+      <p class="ecv-fine">3% מהסכום ששולם על המוצרים, לא כולל משלוח. הקרדיט נשמר בחשבון ומוצג באזור האישי.</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  #ecv-{{ section.id }} { --rose: #c2456a; --champ: #d9b48a; --gold: #e9c99a; direction: rtl; text-align: right; color: #fff7f2; font-family: Heebo, Assistant, sans-serif;
+    background: radial-gradient(60% 70% at 85% 10%, rgba(194, 69, 106, .45), transparent 70%), radial-gradient(50% 60% at 10% 90%, rgba(217, 180, 138, .2), transparent 70%), linear-gradient(160deg, #3b1424, #1c0811);
+    padding-block: clamp(56px, 8vw, 120px); overflow: hidden; }
+  #ecv-{{ section.id }} .ecv-wrap { width: min(1200px, 100% - 40px); margin-inline: auto; display: grid; gap: clamp(28px, 4vw, 64px); align-items: center; grid-template-columns: 1fr; }
+  @media (min-width: 990px) { #ecv-{{ section.id }} .ecv-wrap { grid-template-columns: 1.25fr 1fr; } }
+  #ecv-{{ section.id }} .ecv-media { position: relative; }
+  #ecv-{{ section.id }} .ecv-video { border-radius: 28px; overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, .5), 0 0 0 1px rgba(233, 201, 154, .3); background: #1c0811; }
+  #ecv-{{ section.id }} .ecv-video video { display: block; width: 100%; height: auto; }
+  #ecv-{{ section.id }} .ecv-video--v { max-width: 420px; margin-inline: auto; }
+  #ecv-{{ section.id }} .ecv-video--h:not(.ecv-video--only) { display: none; }
+  @media (min-width: 750px) {
+    #ecv-{{ section.id }} .ecv-video--v { display: none; }
+    #ecv-{{ section.id }} .ecv-video--h { display: block !important; }
+  }
+  #ecv-{{ section.id }} .ecv-empty { aspect-ratio: 16 / 9; border-radius: 28px; display: grid; place-items: center; border: 1px dashed rgba(233, 201, 154, .5); color: var(--gold); }
+  #ecv-{{ section.id }} .ecv-kicker { margin: 0; font: 600 13px/1 Cinzel, serif; letter-spacing: .45em; color: var(--champ); direction: ltr; text-align: inherit; }
+  #ecv-{{ section.id }} .ecv-soon { display: inline-block; margin: 16px 0 0; padding: 6px 14px; border-radius: 99px; border: 1px solid rgba(233, 201, 154, .55); color: var(--gold); font-size: 13px; font-weight: 600; }
+  #ecv-{{ section.id }} .ecv-title { margin: 14px 0 0; font: 900 clamp(34px, 4.2vw, 58px)/1.05 "Frank Ruhl Libre", serif; color: #fff; }
+  #ecv-{{ section.id }} .ecv-text { margin: 16px 0 0; font-size: clamp(16px, 1.3vw, 19px); line-height: 1.6; color: rgba(255, 240, 244, .85); }
+  #ecv-{{ section.id }} .ecv-steps { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 12px; }
+  #ecv-{{ section.id }} .ecv-steps li { display: flex; gap: 14px; align-items: center; padding: 14px 18px; border-radius: 16px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(233, 201, 154, .22); font-size: 15.5px; line-height: 1.4; }
+  #ecv-{{ section.id }} .ecv-steps b { flex: none; font: 600 13px/1 Cinzel, serif; letter-spacing: .2em; color: var(--gold); }
+  #ecv-{{ section.id }} .ecv-btn { display: inline-flex; align-items: center; justify-content: center; margin-top: 28px; height: 56px; padding: 0 36px; border-radius: 99px; text-decoration: none;
+    background: linear-gradient(135deg, #ffd6de, #e98ba5 45%, #c2456a); color: #fff; font: 700 17px/1 Heebo, sans-serif; box-shadow: 0 16px 40px rgba(194, 69, 106, .45); transition: transform .3s, box-shadow .3s; }
+  #ecv-{{ section.id }} .ecv-btn:hover { transform: translateY(-2px); box-shadow: 0 20px 48px rgba(194, 69, 106, .55); }
+  #ecv-{{ section.id }} .ecv-btn.is-soon { opacity: .75; cursor: default; }
+  #ecv-{{ section.id }} .ecv-fine { margin: 14px 0 0; font-size: 12.5px; color: rgba(255, 230, 236, .55); }
+  @media (max-width: 989px) { #ecv-{{ section.id }} .ecv-copy { text-align: center; } #ecv-{{ section.id }} .ecv-steps li { text-align: right; } }
+  @media (prefers-reduced-motion: reduce) { #ecv-{{ section.id }} .ecv-btn { transition: none; } }
+</style>
+
+{% schema %}
+{
+  "name": "EDEN – סרטון מועדון",
+  "tag": "div",
+  "class": "eden-club-video",
+  "settings": [
+    { "type": "video", "id": "video_vertical", "label": "סרטון 9:16 (מובייל)" },
+    { "type": "video", "id": "video_landscape", "label": "סרטון 16:9 (מחשב)" },
+    { "type": "checkbox", "id": "prelaunch", "label": "לפני השקה – להציג \"בקרוב\" במקום כפתור הצטרפות", "default": true },
+    { "type": "text", "id": "heading", "label": "כותרת", "default": "כל קנייה מחזירה לך 3%" },
+    { "type": "textarea", "id": "text", "label": "טקסט", "default": "צפי בסרטון: איך נרשמות, איך הקרדיט נצבר בחשבון ואיך מממשות אותו בקנייה הבאה." },
+    { "type": "text", "id": "button", "label": "כפתור – לא מחוברת", "default": "הצטרפי עכשיו ל־EDEN BEAUTY CLUB" },
+    { "type": "text", "id": "button_member", "label": "כפתור – מחוברת", "default": "ליתרה שלי במועדון" },
+    { "type": "text", "id": "button_soon", "label": "כפתור – לפני השקה", "default": "המועדון נפתח בקרוב" },
+    { "type": "page", "id": "club_page", "label": "עמוד המועדון" }
+  ],
+  "presets": [{ "name": "EDEN – סרטון מועדון" }]
+}
+{% endschema %}
