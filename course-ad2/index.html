@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>EDEN BEAUTY – קורס הרמת ריסים וגבות – סרטון תרגול</title>
+<!--
+  17.5s vertical ad built on real course footage (img/footage.mp4, edited from the clip Eden sent).
+  Animated layers on top: pink frosted captions, light leaks on the cuts, glints on the result, CTA end card.
+  ?logo=img/logo.png puts a logo file in the logo slot.  ?play=1 plays in real time.
+  Text stays between 14% and 65% of the height (Meta Reels/Stories safe zone).
+-->
+<style>
+  @font-face { font-family: Bellefair; src: url(node_modules/@fontsource/bellefair/files/bellefair-hebrew-400-normal.woff2) format('woff2'); }
+  @font-face { font-family: Bellefair; src: url(node_modules/@fontsource/bellefair/files/bellefair-latin-400-normal.woff2) format('woff2'); unicode-range: U+0000-00FF; }
+  @font-face { font-family: Assistant; font-weight: 500; src: url(node_modules/@fontsource/assistant/files/assistant-hebrew-500-normal.woff2) format('woff2'); }
+  @font-face { font-family: Assistant; font-weight: 700; src: url(node_modules/@fontsource/assistant/files/assistant-hebrew-700-normal.woff2) format('woff2'); }
+  @font-face { font-family: Assistant; font-weight: 800; src: url(node_modules/@fontsource/assistant/files/assistant-hebrew-800-normal.woff2) format('woff2'); }
+  @font-face { font-family: Assistant; font-weight: 700; src: url(node_modules/@fontsource/assistant/files/assistant-latin-700-normal.woff2) format('woff2'); unicode-range: U+0000-00FF; }
+
+  :root { --blush: #ffd6dc; --petal: #f6a9b1; --rose: #b84a66; --deep: #9a3f52; --ink: #4a2530; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #ffd6dc; }
+  body { font-family: Assistant, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  #stage { position: absolute; inset: 0; overflow: hidden; perspective: 2200px; }
+
+  /* footage with a slow push-in per shot */
+  #cam { position: absolute; inset: 0; transform-origin: 50% 45%; }
+  #footage { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .grade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(120, 40, 60, .38) 0%, rgba(120, 40, 60, .08) 34%, rgba(0, 0, 0, 0) 55%, rgba(120, 40, 60, .22) 100%); mix-blend-mode: multiply; }
+  .warm { position: absolute; inset: 0; background: rgba(255, 190, 200, .10); mix-blend-mode: soft-light; }
+
+  /* frosted pink caption panel */
+  .panel { position: absolute; left: 60px; right: 60px; top: 300px; z-index: 20; padding: 46px 40px 50px; border-radius: 44px; text-align: center; opacity: 0;
+    background: linear-gradient(160deg, rgba(255, 238, 242, .86), rgba(255, 214, 222, .80));
+    backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    box-shadow: 0 30px 70px rgba(110, 30, 55, .28), inset 0 2px 0 rgba(255, 255, 255, .7), inset 0 0 0 2px rgba(184, 74, 102, .28); }
+  .panel .l { display: block; overflow: hidden; padding: 4px 0; }
+  .panel .l > span { display: inline-block; }
+  .h1 { font: 400 112px/1.06 Bellefair, serif; }
+  .h2 { font: 400 92px/1.1 Bellefair, serif; }
+  .sub { font: 700 50px/1.3 Assistant, sans-serif; color: #8a4a5a; }
+  .rose { background: linear-gradient(100deg, #9a3f52 0%, #d9718c 30%, #b84a66 50%, #e88d9b 65%, #9a3f52 100%); background-size: 220% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .brand { direction: ltr; letter-spacing: .08em; }
+  .chips { display: flex; flex-direction: column; align-items: center; gap: 18px; margin-top: 30px; }
+  .chip { display: inline-flex; align-items: center; gap: 20px; padding: 20px 34px; border-radius: 999px; background: rgba(255, 255, 255, .75); box-shadow: inset 0 0 0 2px rgba(184, 74, 102, .35); }
+  .chip b { font: 400 54px/1 Bellefair, serif; color: var(--rose); direction: ltr; }
+  .chip i { width: 2px; height: 40px; background: rgba(184, 74, 102, .4); }
+  .chip span { font: 700 44px/1.2 Assistant, sans-serif; }
+  .tag { display: inline-block; margin-top: 18px; padding: 10px 26px; border-radius: 999px; background: var(--rose); color: #fff; font: 700 38px/1.2 Assistant, sans-serif; }
+
+  /* glints on the result */
+  .glint { position: absolute; width: 90px; height: 90px; margin: -45px 0 0 -45px; opacity: 0; z-index: 15;
+    background: radial-gradient(circle, #fff 0 6%, rgba(255, 228, 236, .95) 12%, rgba(246, 169, 177, .45) 30%, transparent 62%); }
+  .glint::before, .glint::after { content: ""; position: absolute; left: 50%; top: 50%; width: 150px; height: 3px; margin: -1.5px 0 0 -75px; background: linear-gradient(90deg, transparent, #fff, transparent); }
+  .glint::after { transform: rotate(90deg); }
+  .sweep { position: absolute; inset: -20%; z-index: 14; opacity: 0; mix-blend-mode: screen;
+    background: linear-gradient(115deg, transparent 43%, rgba(255, 225, 232, .6) 50%, transparent 57%); }
+
+  /* end card */
+  #end { position: absolute; inset: 0; z-index: 25; opacity: 0; }
+  #end .veil { position: absolute; inset: 0; background: radial-gradient(75% 45% at 50% 38%, rgba(255, 236, 239, .97) 0%, rgba(255, 222, 228, .93) 60%, rgba(255, 200, 210, .6) 100%),
+      linear-gradient(180deg, rgba(255, 214, 220, .55), rgba(255, 214, 220, .1) 70%, rgba(255, 214, 220, .5)); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  #end .frame { position: absolute; left: 70px; right: 70px; top: 230px; bottom: 560px; border: 2px solid rgba(184, 74, 102, .55); border-radius: 46px; }
+  #end .frame::after { content: ""; position: absolute; inset: 14px; border: 1px solid rgba(184, 74, 102, .3); border-radius: 36px; }
+  #end .cap { position: absolute; left: 70px; right: 70px; top: 560px; text-align: center; }
+  #end .cap .l { display: block; overflow: hidden; padding: 6px 0; }
+  #end .cap .l > span { display: inline-block; }
+  #end .h2 { font-size: 88px; white-space: nowrap; }
+  .logo { position: absolute; top: 290px; left: 0; right: 0; text-align: center; direction: ltr; }
+  .logo .wm { font: 400 64px/1 Bellefair, serif; letter-spacing: .32em; padding-left: .32em; }
+  .logo .rule { width: 160px; height: 2px; margin: 18px auto 0; background: linear-gradient(90deg, transparent, var(--rose), transparent); }
+  .logo img { height: 120px; width: auto; }
+  .wa { position: absolute; left: 50%; top: 1150px; transform: translateX(-50%); display: flex; align-items: center; gap: 24px; white-space: nowrap;
+    padding: 34px 64px; border-radius: 999px; color: #fff; font: 800 50px/1 Assistant, sans-serif; overflow: hidden;
+    background: linear-gradient(135deg, #e88d9b, #c25672 55%, #9a3f52); box-shadow: 0 26px 60px rgba(154, 63, 82, .4), inset 0 2px 0 rgba(255, 255, 255, .45); }
+  .wa svg { width: 62px; height: 62px; fill: #fff; }
+  .wa .sh { position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .55) 50%, transparent 65%); transform: translateX(-130%); }
+
+  /* filmic layers */
+  .leak { position: absolute; width: 1500px; height: 1500px; border-radius: 50%; z-index: 30; pointer-events: none; mix-blend-mode: screen; opacity: 0;
+    background: radial-gradient(circle, rgba(255, 205, 216, .9), rgba(255, 160, 182, .3) 40%, transparent 70%); }
+  .flash { position: absolute; inset: 0; z-index: 31; background: #ffe6ea; opacity: 0; }
+  .bars { position: absolute; left: 0; right: 0; height: 0; z-index: 40; background: #000; }
+  .dots { position: absolute; bottom: 120px; left: 0; right: 0; z-index: 26; display: flex; justify-content: center; gap: 14px; direction: ltr; }
+  .dots i { width: 56px; height: 4px; border-radius: 4px; background: rgba(255, 255, 255, .45); overflow: hidden; position: relative; }
+  .dots i b { position: absolute; inset: 0; background: #fff; transform-origin: left; transform: scaleX(0); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="cam">
+    <video id="footage" src="img/footage.mp4" muted playsinline preload="auto"></video>
+    <div class="warm"></div>
+    <div class="grade"></div>
+    <div class="sweep" id="sweep"></div>
+  </div>
+
+  <!-- 0–3 hook -->
+  <div class="panel" id="p1">
+    <span class="l"><span class="h1">מחפשת מקצוע</span></span>
+    <span class="l"><span class="h1">בעולם <span class="rose">הביוטי?</span></span></span>
+  </div>
+  <!-- 3–5 course -->
+  <div class="panel" id="p2">
+    <span class="l"><span class="sub">הכירי את קורס</span></span>
+    <span class="l"><span class="h2">הרמת הריסים והגבות</span></span>
+    <span class="l"><span class="h2 rose brand">EDEN BEAUTY</span></span>
+  </div>
+  <!-- 5–8.5 two days (facts from the landing page) -->
+  <div class="panel" id="p3">
+    <span class="l"><span class="h2"><span class="rose">יומיים</span> של הכשרה מקצועית</span></span>
+    <div class="chips">
+      <div class="chip" id="c1"><b>01</b><i></i><span>יום עיוני והדגמה</span></div>
+      <div class="chip" id="c2"><b>02</b><i></i><span>תרגול על 2 מודליסטיות</span></div>
+    </div>
+    <span class="tag" id="tag">בפיקוח מלא</span>
+  </div>
+  <!-- 8.5–12.5 result -->
+  <div class="panel" id="p4" style="top:850px;padding:28px 40px 32px;left:150px;right:150px">
+    <span class="l"><span class="sub">טיפול משולב</span></span>
+    <span class="l"><span class="h2">ריסים <span class="rose">+</span> גבות</span></span>
+  </div>
+  <div class="glint" id="g1" style="left:640px;top:380px"></div>
+  <div class="glint" id="g2" style="left:170px;top:610px"></div>
+  <div class="glint" id="g3" style="left:430px;top:1350px"></div>
+  <div class="glint" id="g4" style="left:900px;top:1560px"></div>
+  <div class="glint" id="g5" style="left:500px;top:1250px"></div>
+
+  <!-- 12.5–17.5 CTA -->
+  <section id="end">
+    <div class="veil"></div>
+    <div class="frame" id="frame"></div>
+    <div class="logo" id="logo"><div class="wm rose">EDEN BEAUTY</div><div class="rule"></div></div>
+    <div class="cap">
+      <span class="l"><span class="sub" style="color:var(--rose)">הדרכה אישית · אחת על אחת</span></span>
+      <span class="l"><span class="h2">לפרטים והרשמה</span></span>
+      <span class="l"><span class="h2">שלחי לי הודעה <span class="rose">בוואטסאפ</span> 💬</span></span>
+    </div>
+    <div class="wa" id="wa"><svg viewBox="0 0 32 32"><path d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3zm0 23.6c-2 0-4-.6-5.7-1.6l-.4-.2-3.9 1 1-3.8-.3-.4A10.6 10.6 0 1 1 16 26.6zm5.8-7.9c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2l-1 1.2c-.2.2-.4.2-.7.1a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5 1-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.1 1.1-1.1 2.7s1.2 3.1 1.3 3.3c.2.2 2.3 3.5 5.5 4.9 2 .9 2.8.9 3.8.8.6-.1 1.9-.8 2.2-1.5.3-.8.3-1.4.2-1.5-.1-.2-.3-.2-.6-.4z"/></svg><span>שלחי הודעה</span><i class="sh" id="wash"></i></div>
+  </section>
+
+  <div class="dots" id="dots"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+  <div class="leak" id="leak"></div>
+  <div class="flash" id="flash"></div>
+  <div class="bars" id="barT" style="top:0"></div><div class="bars" id="barB" style="bottom:0"></div>
+</div>
+
+<script src="node_modules/gsap/dist/gsap.min.js"></script>
+<script>
+(() => {
+  const q = new URLSearchParams(location.search);
+  if (q.get('logo')) document.getElementById('logo').innerHTML = `<img src="${q.get('logo')}" alt="logo">`;
+  const LEN = 17.5, CUTS = [0, 3, 5, 8.5, 12.5];   // shot starts in img/footage.mp4
+  const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
+  const lines = id => document.querySelectorAll(`#${id} .l > span`);
+
+  tl.fromTo('.rose', { backgroundPosition: '100% 0' }, { backgroundPosition: '-20% 0', duration: LEN, ease: 'none' }, 0);
+  tl.fromTo('#barT, #barB', { height: 130 }, { height: 0, duration: 1, ease: 'power2.inOut' }, 0);
+
+  // camera: slow push-in per shot, a small kick on every cut
+  CUTS.slice(0, 4).forEach((c, i) => tl.fromTo('#cam', { scale: 1.12, rotation: i % 2 ? -.6 : .6 }, { scale: 1.02, rotation: 0, duration: CUTS[i + 1] - c, ease: 'sine.out' }, c));
+  tl.fromTo('#cam', { scale: 1.06 }, { scale: 1.14, duration: 5, ease: 'sine.inOut' }, 12.5);
+
+  // cut transitions: light leak + soft flash
+  [3, 5, 8.5, 12.5].forEach((c, i) => {
+    tl.fromTo('#leak', { opacity: 0, x: i % 2 ? -500 : 300, y: i % 2 ? 900 : 300, scale: .6 }, { opacity: .95, x: i % 2 ? 0 : -200, y: 500, scale: 1.25, duration: .35, ease: 'power2.in' }, c - .3);
+    tl.to('#leak', { opacity: 0, duration: .6 }, c + .05);
+    tl.fromTo('#flash', { opacity: 0 }, { opacity: .55, duration: .1 }, c - .08);
+    tl.to('#flash', { opacity: 0, duration: .4 }, c + .02);
+  });
+
+  // panels: rise in with a slight 3D tilt, words reveal, leave before the cut
+  const panel = (id, a, b) => {
+    tl.fromTo('#' + id, { opacity: 0, y: 60, rotationX: 18, scale: .94 }, { opacity: 1, y: 0, rotationX: 0, scale: 1, duration: .7, ease: 'expo.out' }, a);
+    tl.from(lines(id), { yPercent: 110, opacity: 0, duration: .7, stagger: .12 }, a + .12);
+    tl.to('#' + id, { opacity: 0, y: -30, duration: .3, ease: 'power2.in' }, b - .32);
+  };
+  panel('p1', .35, 3); panel('p2', 3.15, 5); panel('p3', 5.15, 8.5); panel('p4', 8.75, 12.5);
+  tl.from('#c1', { x: 200, opacity: 0, duration: .6, ease: 'back.out(1.5)' }, 5.7);
+  tl.from('#c2', { x: 200, opacity: 0, duration: .6, ease: 'back.out(1.5)' }, 5.95);
+  tl.from('#tag', { scale: .4, opacity: 0, duration: .5, ease: 'back.out(2)' }, 6.4);
+
+  // result: a light sweep across the lashes and glints on lashes and brows
+  tl.set('#sweep', { opacity: 1 }, 9.1);
+  tl.fromTo('#sweep', { xPercent: -60 }, { xPercent: 60, duration: 1.4, ease: 'power2.inOut' }, 9.1);
+  tl.set('#sweep', { opacity: 0 }, 10.6);
+  ['#g1', '#g2', '#g3', '#g4', '#g5'].forEach((g, i) => {
+    const at = 9.4 + i * .42;
+    tl.fromTo(g, { opacity: 0, scale: .2, rotation: 0 }, { opacity: 1, scale: 1.1, rotation: 45, duration: .35, ease: 'power2.out' }, at);
+    tl.to(g, { opacity: 0, scale: .4, duration: .5 }, at + .35);
+  });
+
+  // progress dots over the four shots
+  document.querySelectorAll('#dots b').forEach((b, i) => tl.fromTo(b, { scaleX: 0 }, { scaleX: 1, duration: CUTS[i + 1] - CUTS[i], ease: 'none' }, CUTS[i]));
+  tl.to('#dots', { opacity: 0, duration: .3 }, 12.3);
+
+  // end card
+  tl.to('#end', { opacity: 1, duration: .5, ease: 'power2.out' }, 12.5);
+  tl.fromTo('#frame', { opacity: 0, scale: 1.06 }, { opacity: 1, scale: 1, duration: .9 }, 12.6);
+  tl.from('#logo', { opacity: 0, y: -20, duration: .6 }, 12.75);
+  tl.from(document.querySelectorAll('#end .cap .l > span'), { yPercent: 110, opacity: 0, duration: .8, stagger: .15 }, 12.85);
+  tl.fromTo('#wa', { opacity: 0, y: 60, scale: .85 }, { opacity: 1, y: 0, scale: 1, duration: .7, ease: 'back.out(1.7)' }, 13.5);
+  tl.to('#wa', { scale: 1.06, duration: .35, yoyo: true, repeat: 5, ease: 'sine.inOut' }, 14.3);
+  tl.fromTo('#wash', { xPercent: -130 }, { xPercent: 130, duration: .9, ease: 'power2.inOut' }, 14.1);
+  tl.to({}, { duration: .01 }, LEN - .01);
+
+  // frame-accurate footage sync
+  const v = document.getElementById('footage');
+  const sync = t => new Promise(r => {
+    const target = Math.min(Math.max(0, t), v.duration - .02);
+    if (Math.abs(v.currentTime - target) < .001) return r();
+    v.addEventListener('seeked', r, { once: true }); v.currentTime = target;
+  });
+  window.__duration = LEN;
+  window.__seek = t => { tl.seek(t, false); return sync(t).then(() => true); };
+  const loaded = v.readyState >= 2 ? null : new Promise(r => v.addEventListener('loadeddata', r, { once: true }));
+  window.__ready = Promise.all([document.fonts.ready, loaded]).then(() => window.__seek(0));
+  if (q.get('play') === '1') window.__ready.then(() => { tl.play(0); v.play(); });
+})();
+</script>
+</body>
+</html>
