@@ -55,13 +55,13 @@
 </section>
 
 <style>
-  #ecv-{{ section.id }} { --rose: #c2456a; --champ: #d9b48a; --gold: #e9c99a; direction: rtl; text-align: right; color: #fff7f2; font-family: Heebo, Assistant, sans-serif;
-    background: radial-gradient(60% 70% at 85% 10%, rgba(194, 69, 106, .45), transparent 70%), radial-gradient(50% 60% at 10% 90%, rgba(217, 180, 138, .2), transparent 70%), linear-gradient(160deg, #3b1424, #1c0811);
+  #ecv-{{ section.id }} { --rose: #c2456a; --champ: #d9b48a; --gold: #e9c99a; direction: rtl; text-align: right; color: #5c2a3a; font-family: Heebo, Assistant, sans-serif;
+    background: radial-gradient(60% 70% at 85% 10%, rgba(255, 255, 255, .9), transparent 70%), radial-gradient(50% 60% at 10% 90%, rgba(246, 225, 200, .7), transparent 70%), linear-gradient(160deg, #ffe4eb, #fbd0dc 60%, #f6bfd0);
     padding-block: clamp(56px, 8vw, 120px); overflow: hidden; }
   #ecv-{{ section.id }} .ecv-wrap { width: min(1200px, 100% - 40px); margin-inline: auto; display: grid; gap: clamp(28px, 4vw, 64px); align-items: center; grid-template-columns: 1fr; }
   @media (min-width: 990px) { #ecv-{{ section.id }} .ecv-wrap { grid-template-columns: 1.25fr 1fr; } }
   #ecv-{{ section.id }} .ecv-media { position: relative; }
-  #ecv-{{ section.id }} .ecv-video { border-radius: 28px; overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, .5), 0 0 0 1px rgba(233, 201, 154, .3); background: #1c0811; }
+  #ecv-{{ section.id }} .ecv-video { border-radius: 28px; overflow: hidden; box-shadow: 0 30px 80px rgba(150, 40, 80, .28), 0 0 0 1px rgba(201, 162, 122, .45); background: #fde8ee; }
   #ecv-{{ section.id }} .ecv-video video { display: block; width: 100%; height: auto; }
   #ecv-{{ section.id }} .ecv-video--v { max-width: 420px; margin-inline: auto; }
   #ecv-{{ section.id }} .ecv-video--h:not(.ecv-video--only) { display: none; }
@@ -69,19 +69,19 @@
     #ecv-{{ section.id }} .ecv-video--v { display: none; }
     #ecv-{{ section.id }} .ecv-video--h { display: block !important; }
   }
-  #ecv-{{ section.id }} .ecv-empty { aspect-ratio: 16 / 9; border-radius: 28px; display: grid; place-items: center; border: 1px dashed rgba(233, 201, 154, .5); color: var(--gold); }
-  #ecv-{{ section.id }} .ecv-kicker { margin: 0; font: 600 13px/1 Cinzel, serif; letter-spacing: .45em; color: var(--champ); direction: ltr; text-align: inherit; }
-  #ecv-{{ section.id }} .ecv-soon { display: inline-block; margin: 16px 0 0; padding: 6px 14px; border-radius: 99px; border: 1px solid rgba(233, 201, 154, .55); color: var(--gold); font-size: 13px; font-weight: 600; }
-  #ecv-{{ section.id }} .ecv-title { margin: 14px 0 0; font: 900 clamp(34px, 4.2vw, 58px)/1.05 "Frank Ruhl Libre", serif; color: #fff; }
-  #ecv-{{ section.id }} .ecv-text { margin: 16px 0 0; font-size: clamp(16px, 1.3vw, 19px); line-height: 1.6; color: rgba(255, 240, 244, .85); }
+  #ecv-{{ section.id }} .ecv-empty { aspect-ratio: 16 / 9; border-radius: 28px; display: grid; place-items: center; border: 1px dashed rgba(176, 128, 79, .6); color: #b0804f; }
+  #ecv-{{ section.id }} .ecv-kicker { margin: 0; font: 600 13px/1 Cinzel, serif; letter-spacing: .45em; color: #b0804f; direction: ltr; text-align: inherit; }
+  #ecv-{{ section.id }} .ecv-soon { display: inline-block; margin: 16px 0 0; padding: 6px 14px; border-radius: 99px; border: 1px solid rgba(176, 128, 79, .6); background: rgba(255, 255, 255, .7); color: #8a5a35; font-size: 13px; font-weight: 600; }
+  #ecv-{{ section.id }} .ecv-title { margin: 14px 0 0; font: 900 clamp(34px, 4.2vw, 58px)/1.05 "Frank Ruhl Libre", serif; color: #5c2a3a; }
+  #ecv-{{ section.id }} .ecv-text { margin: 16px 0 0; font-size: clamp(16px, 1.3vw, 19px); line-height: 1.6; color: rgba(92, 42, 58, .82); }
   #ecv-{{ section.id }} .ecv-steps { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 12px; }
-  #ecv-{{ section.id }} .ecv-steps li { display: flex; gap: 14px; align-items: center; padding: 14px 18px; border-radius: 16px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(233, 201, 154, .22); font-size: 15.5px; line-height: 1.4; }
-  #ecv-{{ section.id }} .ecv-steps b { flex: none; font: 600 13px/1 Cinzel, serif; letter-spacing: .2em; color: var(--gold); }
+  #ecv-{{ section.id }} .ecv-steps li { display: flex; gap: 14px; align-items: center; padding: 14px 18px; border-radius: 16px; background: rgba(255, 255, 255, .65); border: 1px solid rgba(201, 162, 122, .4); font-size: 15.5px; line-height: 1.4; }
+  #ecv-{{ section.id }} .ecv-steps b { flex: none; font: 600 13px/1 Cinzel, serif; letter-spacing: .2em; color: #b0804f; }
   #ecv-{{ section.id }} .ecv-btn { display: inline-flex; align-items: center; justify-content: center; margin-top: 28px; height: 56px; padding: 0 36px; border-radius: 99px; text-decoration: none;
-    background: linear-gradient(135deg, #ffd6de, #e98ba5 45%, #c2456a); color: #fff; font: 700 17px/1 Heebo, sans-serif; box-shadow: 0 16px 40px rgba(194, 69, 106, .45); transition: transform .3s, box-shadow .3s; }
+    background: linear-gradient(135deg, #e98ba5, #c2456a 50%, #9c2f55); color: #fff; font: 700 17px/1 Heebo, sans-serif; box-shadow: 0 16px 40px rgba(194, 69, 106, .45); transition: transform .3s, box-shadow .3s; }
   #ecv-{{ section.id }} .ecv-btn:hover { transform: translateY(-2px); box-shadow: 0 20px 48px rgba(194, 69, 106, .55); }
   #ecv-{{ section.id }} .ecv-btn.is-soon { opacity: .75; cursor: default; }
-  #ecv-{{ section.id }} .ecv-fine { margin: 14px 0 0; font-size: 12.5px; color: rgba(255, 230, 236, .55); }
+  #ecv-{{ section.id }} .ecv-fine { margin: 14px 0 0; font-size: 12.5px; color: rgba(92, 42, 58, .55); }
   @media (max-width: 989px) { #ecv-{{ section.id }} .ecv-copy { text-align: center; } #ecv-{{ section.id }} .ecv-steps li { text-align: right; } }
   @media (prefers-reduced-motion: reduce) { #ecv-{{ section.id }} .ecv-btn { transition: none; } }
 </style>
