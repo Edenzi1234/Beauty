@@ -1,0 +1,6 @@
+{
+  "name": "eden-course-ad",
+  "private": true,
+  "type": "module",
+  "dependencies": { "@fontsource/assistant": "^5.0.0", "@fontsource/bellefair": "^5.0.0", "gsap": "^3.12.0" }
+}
