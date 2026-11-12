@@ -1,0 +1,289 @@
+{%- comment -%}
+  EDEN BEAUTY CLUB – welcome pop-up (footer group, so it can be edited in the theme editor).
+  - Shown once per visit (sessionStorage), after the delay set below. Never to logged-in customers (they are club members),
+    never again after joining, and never on cart / account / club / password pages. Checkout is a separate site and is untouched.
+  - Nothing heavy loads until it opens: the markup and images live in a <template> and are cloned only when shown.
+  - Joining = Shopify customer form: creates the customer (or updates her) with tags "eden-club, eden-popup" and email consent.
+    Joins through the pop-up = Customers filtered by the tag "eden-popup".
+{%- endcomment -%}
+{%- liquid
+  assign s = section.settings
+  assign skip = false
+  if customer or s.enabled == false or request.design_mode and s.show_in_editor == false
+    assign skip = true
+  endif
+  if template.name == 'cart' or template.name == 'password' or template.name == 'gift_card' or template.directory == 'customers'
+    assign skip = true
+  endif
+  if request.page_type == 'page' and page.handle == 'eden-club'
+    assign skip = true
+  endif
+
+  assign imgs = ''
+  assign img_count = 0
+-%}
+{%- unless skip -%}
+  {%- capture product_images -%}
+    {%- for i in (1..3) -%}
+      {%- assign key = 'image_' | append: i -%}
+      {%- if s[key] != blank -%}
+        {%- assign img_count = img_count | plus: 1 -%}
+        <figure class="ecp-img ecp-img--{{ img_count }}">{{ s[key] | image_url: width: 520 | image_tag: loading: 'lazy', alt: s[key].alt | default: '', sizes: '(min-width: 750px) 260px, 33vw' }}</figure>
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if img_count == 0 and s.collection != blank -%}
+      {%- for p in s.collection.products limit: 12 -%}
+        {%- if p.featured_image and p.available -%}
+          {%- assign img_count = img_count | plus: 1 -%}
+          <figure class="ecp-img ecp-img--{{ img_count }}">{{ p.featured_image | image_url: width: 520 | image_tag: loading: 'lazy', alt: p.title, sizes: '(min-width: 750px) 260px, 33vw' }}</figure>
+          {%- if img_count >= 3 -%}{%- break -%}{%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endcapture -%}
+
+  <eden-club-popup data-delay="{{ s.delay | default: 3 }}" data-section="{{ section.id }}" hidden>
+    <template>
+      <div class="ecp" role="dialog" aria-modal="true" aria-labelledby="ecp-title-{{ section.id }}" dir="rtl">
+        <div class="ecp__backdrop" data-ecp-close></div>
+        <div class="ecp__card">
+          <button type="button" class="ecp__close" data-ecp-close aria-label="סגירה והמשך גלישה">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+
+          <div class="ecp__visual" aria-hidden="true">
+            <div class="ecp__glow"></div>
+            <div class="ecp__imgs">{{ product_images }}</div>
+            <div class="ecp__medal"><b>3%</b><span>חוזרים אלייך</span></div>
+          </div>
+
+          <div class="ecp__body">
+            <div class="ecp__logo">
+              {%- if s.logo != blank -%}
+                {{ s.logo | image_url: width: 520 | image_tag: alt: shop.name, loading: 'lazy' }}
+              {%- elsif settings.logo != blank -%}
+                {{ settings.logo | image_url: width: 520 | image_tag: alt: shop.name, loading: 'lazy' }}
+              {%- else -%}
+                <span class="ecp__wordmark">EDEN BEAUTY SHOP</span>
+              {%- endif -%}
+            </div>
+            <p class="ecp__kicker">{{ s.kicker }}</p>
+            {%- if s.prelaunch -%}<p class="ecp__soon">נפתח בקרוב</p>{%- endif -%}
+            <h2 class="ecp__title" id="ecp-title-{{ section.id }}">{{ s.heading }}</h2>
+            <p class="ecp__text">{{ s.text }}</p>
+            <ul class="ecp__list">
+              {%- for i in (1..3) -%}
+                {%- assign key = 'bullet_' | append: i -%}
+                {%- if s[key] != blank -%}<li><span aria-hidden="true">♡</span>{{ s[key] }}</li>{%- endif -%}
+              {%- endfor -%}
+            </ul>
+
+            <div class="ecp__step ecp__step--cta" data-ecp-step="cta">
+              <button type="button" class="ecp__btn" data-ecp-join>{% if s.prelaunch %}{{ s.button_soon }}{% else %}{{ s.button }}{% endif %}</button>
+            </div>
+
+            <div class="ecp__step ecp__step--form" data-ecp-step="form" hidden>
+              {%- form 'customer', class: 'ecp__form', id: 'ecp-form' -%}
+                {%- if form.posted_successfully? -%}<span hidden data-ecp-ok></span>{%- endif -%}
+                {%- if form.errors -%}<p class="ecp__err" role="alert" data-ecp-errors>{{ form.errors | default_errors }}</p>{%- endif -%}
+                <input type="hidden" name="contact[tags]" value="eden-club, eden-popup">
+                <input type="hidden" name="contact[accepts_marketing]" value="true">
+                <label class="ecp__label" for="ecp-email-{{ section.id }}">כתובת המייל שלך</label>
+                <div class="ecp__row">
+                  <input class="ecp__input" id="ecp-email-{{ section.id }}" type="email" name="contact[email]" required autocomplete="email" inputmode="email" placeholder="name@email.com" dir="ltr">
+                  <button type="submit" class="ecp__btn ecp__btn--sm">הצטרפות</button>
+                </div>
+                <p class="ecp__fine">ההצטרפות חינם. בהרשמה את מאשרת לקבל מאיתנו עדכונים על מבצעים וקולקציות במייל; אפשר להסיר את עצמך בכל רגע.</p>
+              {%- endform -%}
+              <a class="ecp__link" href="{{ routes.account_login_url }}?return_url={{ s.club_page.url | default: '/pages/eden-club' | url_encode }}">כבר יש לך חשבון? התחברי</a>
+            </div>
+
+            <div class="ecp__step ecp__step--done" data-ecp-step="done" hidden>
+              <p class="ecp__done">ברוכה הבאה ל־EDEN BEAUTY CLUB ♡</p>
+              <p class="ecp__text">נרשמת בהצלחה. בקנייה הבאה, כשאת מחוברת עם המייל הזה – 3% חוזרים אלייך.</p>
+              <a class="ecp__btn" href="{{ s.club_page.url | default: '/pages/eden-club' }}">למועדון שלי</a>
+            </div>
+
+            <button type="button" class="ecp__later" data-ecp-close>אולי בפעם אחרת</button>
+          </div>
+        </div>
+      </div>
+    </template>
+  </eden-club-popup>
+
+  <style>
+    eden-club-popup[hidden] { display: none; }
+    .ecp { --rose: #c2456a; --deep: #9a3f52; --blush: #fde3ea; --champ: #c9a27a; --ink: #4a2530;
+      position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; padding: 16px; font-family: inherit; color: var(--ink); text-align: right; }
+    .ecp__backdrop { position: absolute; inset: 0; background: rgba(60, 20, 35, .45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity .5s ease; }
+    .ecp__card { position: relative; display: grid; grid-template-columns: 1fr; width: min(880px, 100%); max-height: min(92vh, 760px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; border-radius: 28px;
+      background: linear-gradient(180deg, #fffaf8, #fff 40%); box-shadow: 0 40px 100px rgba(80, 20, 40, .35), 0 0 0 1px rgba(201, 162, 122, .35);
+      opacity: 0; transform: translateY(26px) scale(.96); transition: opacity .6s cubic-bezier(.22, 1, .36, 1), transform .7s cubic-bezier(.22, 1, .36, 1); }
+    @media (min-width: 750px) { .ecp__card { grid-template-columns: 1fr 1.05fr; overflow: hidden; } }
+    .ecp.is-open .ecp__backdrop { opacity: 1; }
+    .ecp.is-open .ecp__card { opacity: 1; transform: none; }
+    .ecp.is-closing .ecp__card { opacity: 0; transform: translateY(14px) scale(.98); transition-duration: .3s; }
+    .ecp.is-closing .ecp__backdrop { opacity: 0; transition-duration: .3s; }
+
+    .ecp__close { position: absolute; top: 12px; left: 12px; z-index: 5; display: grid; place-items: center; width: 42px; height: 42px; border: 0; border-radius: 50%; cursor: pointer;
+      background: rgba(255, 255, 255, .92); color: var(--ink); box-shadow: 0 4px 14px rgba(80, 20, 40, .18); transition: transform .2s; }
+    .ecp__close:hover { transform: rotate(90deg); }
+    .ecp__close:focus-visible, .ecp__btn:focus-visible, .ecp__later:focus-visible { outline: 2px solid var(--deep); outline-offset: 3px; }
+
+    /* visual side */
+    .ecp__visual { position: relative; min-height: 210px; overflow: hidden; background: radial-gradient(120% 90% at 70% 10%, #fff 0%, #fde3ea 40%, #f6b9c8 100%); }
+    @media (min-width: 750px) { .ecp__visual { min-height: 520px; order: 2; } }
+    .ecp__glow { position: absolute; width: 420px; height: 420px; border-radius: 50%; top: -120px; left: -80px; background: radial-gradient(circle, rgba(255, 255, 255, .9), transparent 65%); }
+    .ecp__imgs { position: absolute; inset: 0; }
+    .ecp-img { position: absolute; margin: 0; overflow: hidden; background: #fff; border-radius: 999px 999px 22px 22px; box-shadow: 0 18px 40px rgba(120, 30, 60, .22);
+      opacity: 0; transform: translateY(30px); transition: opacity .7s ease, transform .9s cubic-bezier(.22, 1, .36, 1); }
+    .ecp-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ecp-img--1 { width: 34%; height: 78%; top: 12%; right: 33%; z-index: 2; transition-delay: .25s; }
+    .ecp-img--2 { width: 27%; height: 60%; top: 26%; right: 6%; transition-delay: .4s; }
+    .ecp-img--3 { width: 27%; height: 60%; top: 26%; right: 67%; transition-delay: .55s; }
+    @media (min-width: 750px) {
+      .ecp-img--1 { width: 46%; height: 58%; top: 16%; right: 27%; }
+      .ecp-img--2 { width: 36%; height: 44%; top: 46%; right: 4%; }
+      .ecp-img--3 { width: 36%; height: 44%; top: 50%; right: 60%; }
+    }
+    .ecp.is-open .ecp-img { opacity: 1; transform: none; }
+    .ecp__medal { position: absolute; z-index: 3; bottom: 14px; left: 16px; display: grid; place-items: center; align-content: center; width: 92px; height: 92px; border-radius: 50%;
+      background: linear-gradient(135deg, #e88d9b, var(--rose) 55%, var(--deep)); color: #fff; box-shadow: 0 14px 34px rgba(154, 63, 82, .45), inset 0 0 0 3px rgba(255, 255, 255, .35);
+      transform: scale(0) rotate(-20deg); transition: transform .7s cubic-bezier(.34, 1.56, .64, 1) .7s; }
+    .ecp__medal b { font-size: 30px; line-height: 1; letter-spacing: -.02em; direction: ltr; }
+    .ecp__medal span { margin-top: 3px; font-size: 11px; font-weight: 600; }
+    @media (min-width: 750px) { .ecp__medal { width: 118px; height: 118px; bottom: 24px; left: 24px; } .ecp__medal b { font-size: 38px; } }
+    .ecp.is-open .ecp__medal { transform: none; }
+
+    /* text side */
+    .ecp__body { padding: 22px 22px 18px; }
+    @media (min-width: 750px) { .ecp__body { padding: 42px 40px 28px; display: flex; flex-direction: column; justify-content: center; } }
+    .ecp__body > * { opacity: 0; transform: translateY(10px); transition: opacity .6s ease, transform .6s ease; }
+    .ecp.is-open .ecp__body > * { opacity: 1; transform: none; }
+    .ecp.is-open .ecp__body > :nth-child(2) { transition-delay: .1s; } .ecp.is-open .ecp__body > :nth-child(3) { transition-delay: .15s; }
+    .ecp.is-open .ecp__body > :nth-child(4) { transition-delay: .2s; } .ecp.is-open .ecp__body > :nth-child(5) { transition-delay: .25s; }
+    .ecp.is-open .ecp__body > :nth-child(n+6) { transition-delay: .32s; }
+    .ecp__logo img { display: block; max-width: 170px; max-height: 54px; width: auto; height: auto; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .05)); }
+    .ecp__logo img[src*="white"] { filter: brightness(0) saturate(100%) invert(30%) sepia(40%) saturate(1400%) hue-rotate(310deg) brightness(.9); }
+    .ecp__wordmark { font-size: 15px; letter-spacing: .32em; color: var(--deep); direction: ltr; }
+    .ecp__kicker { margin: 14px 0 0; font-size: 12.5px; letter-spacing: .36em; color: var(--champ); direction: ltr; text-align: right; font-weight: 600; }
+    .ecp__soon { display: inline-block; margin: 10px 0 0; padding: 4px 12px; border-radius: 99px; background: var(--blush); color: var(--deep); font-size: 12.5px; font-weight: 700; }
+    .ecp__title { margin: 8px 0 0; font-size: clamp(28px, 4.2vw, 40px); line-height: 1.08; font-weight: 700; letter-spacing: -.01em;
+      background: linear-gradient(180deg, #e0789a, var(--rose) 55%, var(--deep)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .ecp__text { margin: 10px 0 0; font-size: 15px; line-height: 1.55; color: #6b4350; }
+    .ecp__list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 7px; }
+    .ecp__list li { display: flex; gap: 9px; align-items: baseline; font-size: 14.5px; font-weight: 600; }
+    .ecp__list span { color: var(--rose); font-size: 15px; }
+    .ecp__step { margin-top: 20px; }
+    .ecp__btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 54px; padding: 0 26px; border: 0; border-radius: 999px; cursor: pointer;
+      background: linear-gradient(135deg, #e88d9b, var(--rose) 55%, var(--deep)); color: #fff; font: inherit; font-size: 16.5px; font-weight: 700; text-decoration: none;
+      box-shadow: 0 16px 34px rgba(194, 69, 106, .35), inset 0 1px 0 rgba(255, 255, 255, .45); transition: transform .25s ease, box-shadow .25s ease; position: relative; overflow: hidden; }
+    .ecp__btn::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .45) 50%, transparent 65%); transform: translateX(-130%); }
+    .ecp.is-open .ecp__btn::after { animation: ecp-sheen 1.6s ease 1.2s 1; }
+    .ecp__btn:hover { transform: translateY(-2px); box-shadow: 0 20px 40px rgba(194, 69, 106, .42); }
+    .ecp__btn--sm { width: auto; min-height: 48px; flex: 1 0 auto; font-size: 15px; }
+    .ecp__label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+    .ecp__row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ecp__input { flex: 1 1 200px; min-width: 0; min-height: 48px; padding: 0 16px; border-radius: 999px; border: 1.5px solid rgba(201, 162, 122, .6); background: #fff; font: inherit; font-size: 15px; color: var(--ink); text-align: left; }
+    .ecp__input:focus { outline: none; border-color: var(--rose); box-shadow: 0 0 0 3px rgba(194, 69, 106, .15); }
+    .ecp__err { margin: 0 0 8px; font-size: 13px; color: #b3261e; }
+    .ecp__fine { margin: 8px 0 0; font-size: 11.5px; line-height: 1.45; color: #9b7a85; }
+    .ecp__link { display: inline-block; margin-top: 8px; font-size: 13px; color: var(--deep); }
+    .ecp__done { margin: 0; font-size: 20px; font-weight: 700; color: var(--deep); }
+    .ecp__step--done .ecp__btn { margin-top: 14px; }
+    .ecp__later { display: block; margin: 12px auto 0; padding: 6px 10px; border: 0; background: none; font: inherit; font-size: 13px; color: #9b7a85; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+    @keyframes ecp-sheen { to { transform: translateX(130%); } }
+    @media (max-width: 749px) { .ecp { align-items: end; padding: 10px; } .ecp__card { max-height: 94vh; } }
+    @media (prefers-reduced-motion: reduce) { .ecp *, .ecp { transition: none !important; animation: none !important; } }
+  </style>
+
+  <script>
+    (() => {
+      const host = document.querySelector('eden-club-popup[data-section="{{ section.id }}"]');
+      if (!host) return;
+      const SEEN = 'edenClubPopupSeen', JOINED = 'edenClubJoined';
+      const tpl = host.querySelector('template').content;
+      const posted = !!tpl.querySelector('[data-ecp-ok]') || /[?&]customer_posted=true/.test(location.search);
+      const formError = !!tpl.querySelector('[data-ecp-errors]');
+      try { if (localStorage.getItem(JOINED) && !posted) return; } catch (e) {}
+      const editor = window.Shopify && Shopify.designMode;
+      let root, last;
+      const step = (name) => root.querySelectorAll('[data-ecp-step]').forEach((el) => (el.hidden = el.dataset.ecpStep !== name));
+      const track = (event, data) => { try { window.Shopify && Shopify.analytics && Shopify.analytics.publish('eden_club_popup_' + event, data || {}); } catch (e) {} };
+      const close = () => {
+        if (!root) return;
+        root.classList.add('is-closing');
+        document.documentElement.style.removeProperty('overflow');
+        document.removeEventListener('keydown', onKey);
+        setTimeout(() => { root.remove(); root = null; last && last.focus && last.focus({ preventScroll: true }); }, 320);
+        track('close');
+      };
+      const onKey = (e) => { if (e.key === 'Escape') close(); };
+      const open = (initial) => {
+        if (root) return;
+        last = document.activeElement;
+        host.hidden = false;
+        host.append(host.querySelector('template').content.cloneNode(true));
+        root = host.querySelector('.ecp');
+        if (initial) step(initial);
+        document.documentElement.style.overflow = 'hidden';
+        requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('is-open')));
+        root.addEventListener('click', (e) => {
+          if (e.target.closest('[data-ecp-close]')) close();
+          if (e.target.closest('[data-ecp-join]')) { step('form'); track('join_click'); setTimeout(() => root.querySelector('.ecp__input')?.focus(), 50); }
+        });
+        root.querySelector('#ecp-form')?.addEventListener('submit', () => { try { sessionStorage.setItem('edenClubPopupSubmit', '1'); } catch (e) {} track('submit'); });
+        document.addEventListener('keydown', onKey);
+        root.querySelector('.ecp__close').focus({ preventScroll: true });
+        try { sessionStorage.setItem(SEEN, '1'); } catch (e) {}
+        track('view');
+      };
+      // after the form posts, Shopify reloads the page with ?customer_posted=true – show the thank-you state once
+      let submitted = false;
+      try { submitted = sessionStorage.getItem('edenClubPopupSubmit') === '1'; } catch (e) {}
+      if (posted && submitted) {
+        try { sessionStorage.removeItem('edenClubPopupSubmit'); localStorage.setItem(JOINED, String(Date.now())); } catch (e) {}
+        track('joined');
+        return open('done');
+      }
+      if (submitted && formError) { try { sessionStorage.removeItem('edenClubPopupSubmit'); } catch (e) {} return open('form'); }
+      let seen = false;
+      try { seen = sessionStorage.getItem(SEEN) === '1'; } catch (e) {}
+      if (seen && !editor) return;
+      const delay = Math.max(0, Number(host.dataset.delay) || 0) * 1000;
+      const start = () => setTimeout(() => open(), editor ? 300 : delay);
+      if (document.readyState === 'complete') start(); else window.addEventListener('load', start, { once: true });
+    })();
+  </script>
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "EDEN – חלון מועדון",
+  "tag": "div",
+  "class": "eden-club-popup-section",
+  "settings": [
+    { "type": "checkbox", "id": "enabled", "label": "להציג את החלון באתר", "default": true },
+    { "type": "range", "id": "delay", "label": "זמן עד הופעה (שניות)", "min": 0, "max": 30, "step": 1, "unit": "ש׳", "default": 3 },
+    { "type": "checkbox", "id": "show_in_editor", "label": "להציג גם בעורך התבנית (לעיצוב)", "default": true },
+    { "type": "checkbox", "id": "prelaunch", "label": "מצב \"בקרוב\" – לפני שהצבירה פעילה", "default": false },
+    { "type": "header", "content": "טקסט" },
+    { "type": "text", "id": "kicker", "label": "שורה עליונה", "default": "EDEN BEAUTY CLUB" },
+    { "type": "text", "id": "heading", "label": "כותרת", "default": "הקניות שלך שוות יותר!" },
+    { "type": "textarea", "id": "text", "label": "טקסט", "default": "הצטרפי למועדון הלקוחות שלנו בחינם ותיהני מ-3% צבירה מכל רכישה למימוש בקנייה הבאה." },
+    { "type": "text", "id": "bullet_1", "label": "יתרון 1", "default": "צבירת כסף בכל קנייה" },
+    { "type": "text", "id": "bullet_2", "label": "יתרון 2", "default": "הטבות בלעדיות לחברות המועדון" },
+    { "type": "text", "id": "bullet_3", "label": "יתרון 3", "default": "עדכונים על מבצעים וקולקציות חדשות" },
+    { "type": "text", "id": "button", "label": "טקסט הכפתור", "default": "אני רוצה להצטרף למועדון" },
+    { "type": "text", "id": "button_soon", "label": "טקסט הכפתור במצב \"בקרוב\"", "default": "עדכני אותי כשהמועדון נפתח" },
+    { "type": "page", "id": "club_page", "label": "עמוד המועדון" },
+    { "type": "header", "content": "תמונות" },
+    { "type": "image_picker", "id": "logo", "label": "לוגו (ריק = הלוגו של האתר)" },
+    { "type": "collection", "id": "collection", "label": "קולקציה לתמונות מוצרים (אם לא נבחרו תמונות)" },
+    { "type": "image_picker", "id": "image_1", "label": "תמונה 1" },
+    { "type": "image_picker", "id": "image_2", "label": "תמונה 2" },
+    { "type": "image_picker", "id": "image_3", "label": "תמונה 3" }
+  ],
+  "presets": [{ "name": "EDEN – חלון מועדון" }]
+}
+{% endschema %}
