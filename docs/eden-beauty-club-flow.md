@@ -174,3 +174,53 @@ export default function main(input) {
 Smile מותקנת והווידג'ט שלה פעיל באתר, אבל אף הטבה שלה לא מומשה עד היום.
 כדי שלא יהיו שתי תוכניות שונות מול הלקוחות – לכבות ב־Smile את חוקי צבירת הנקודות
 (או את ה־App embed של Smile בעורך התבנית), או להשאיר אותה רק להטבות שאינן קאשבק.
+
+---
+
+## חברות המועדון – תגית, קבוצה ודוח (12.11.2026)
+
+**מי חברה:** כל לקוחה שיש לה רשומת לקוח בחנות (נרשמה לחשבון דרך חלון המועדון / "התחברות", או קנתה באתר).
+זה תואם את הצבירה: תהליך 1 צובר 3% לכל הזמנה ששולמה ויש בה לקוחה.
+
+| מה | איפה | מתעדכן לבד? |
+| --- | --- | --- |
+| תגית `EDEN Club` | על כל לקוחה (206 הלקוחות הקיימות סומנו ב־12.11) | חדשות – דרך תהליך 3 למטה |
+| קבוצה **"חברות מועדון EDEN"** | Customers → Segments · `customer_tags CONTAINS 'EDEN Club'` | כן |
+| קבוצה **"חברות מועדון EDEN – מאשרות דיוור"** | אותה תגית + אישרו מייל או SMS שיווקי | כן |
+| יתרת צבירה | בכרטיס הלקוחה → **Store credit** | כן (תהליך 1/2) |
+| נצבר / מומש / יתרה לכל לקוחה | Analytics → Reports → דוח ShopifyQL למטה | כן |
+
+### תהליך 3 – תגית לכל לקוחה חדשה
+
+**שם:** `EDEN CLUB – תגית חברה`
+
+1. **Trigger:** `Customer created`
+2. **Action:** `Add customer tags` → `EDEN Club`
+3. Turn on.
+
+(מומלץ גם להוסיף לתהליך 1, מיד אחרי ה־Trigger, פעולה `Add customer tags` → `EDEN Club` – לגיבוי.)
+
+### דוח צבירה ומימוש (ShopifyQL)
+
+Analytics → Reports → **New exploration** → להדביק → Save as **"מועדון EDEN – צבירה ומימוש"**:
+
+```
+FROM store_credit_transactions
+SHOW credited_store_credit_value, debited_store_credit_value, expired_store_credit_value,
+  credited_store_credit_value + debited_store_credit_value + expired_store_credit_value AS balance
+GROUP BY customer_name, customer_email
+WITH TOTALS
+SINCE 2026-01-01 UNTIL today
+ORDER BY credited_store_credit_value DESC
+LIMIT 1000
+```
+
+- credited = נצבר · debited = מומש (מופיע במינוס) · balance = יתרה.
+- כפתור **Export** בדוח מוריד CSV.
+
+### ייצוא ושליחת מבצעים
+
+- **ייצוא רשימה:** Customers → Segments → "חברות מועדון EDEN" → **Export** → CSV
+  (שם, מייל, טלפון, טלפון מהכתובת, אישור דיוור, תגיות, כמות הזמנות, סכום קניות).
+- **מבצע במייל:** Marketing → Create campaign → Shopify Email → Recipients: "חברות מועדון EDEN – מאשרות דיוור".
+  Shopify שולח רק למי שאישרה דיוור – גם אם בוחרים קבוצה רחבה יותר.
