@@ -98,6 +98,10 @@
             </ul>
 
             <div class="ecp__step ecp__step--form" data-ecp-step="form">
+              {%- if section.blocks.size > 0 -%}
+                {%- comment -%} Shopify Forms (free, by Shopify) app block: saves the sign-up in Shopify and tags new AND existing customers {%- endcomment -%}
+                <div class="ecp__app" data-ecp-app>{%- for block in section.blocks -%}{%- render block -%}{%- endfor -%}</div>
+              {%- else -%}
               {%- form 'customer', class: 'ecp__form', id: 'ecp-form' -%}
                 {%- if form.posted_successfully? -%}<span hidden data-ecp-ok></span>{%- endif -%}
                 {%- if form.errors -%}<p class="ecp__err" role="alert" data-ecp-errors>{{ form.errors | default_errors }}</p>{%- endif -%}
@@ -107,6 +111,7 @@
                 <button type="submit" class="ecp__btn">{% if s.prelaunch %}{{ s.button_soon }}{% else %}{{ s.button }}{% endif %}</button>
                 <p class="ecp__fine">{{ s.button_note }}</p>
               {%- endform -%}
+              {%- endif -%}
             </div>
 
             <div class="ecp__step ecp__step--done" data-ecp-step="done" hidden>
@@ -200,6 +205,7 @@
     .ecp__input:focus { outline: none; border-color: var(--rose); box-shadow: 0 0 0 3px rgba(194, 69, 106, .15); }
     .ecp__err { margin: 0 0 8px; font-size: 13px; color: #b3261e; }
     .ecp__form { display: grid; gap: 10px; }
+    .ecp__app { min-height: 60px; }
     .ecp__form .ecp__input { width: 100%; box-sizing: border-box; }
     .ecp__form .ecp__fine { margin: 0; text-align: center; }
     .ecp__label { margin-bottom: -4px; }
@@ -313,6 +319,7 @@
     { "type": "image_picker", "id": "image_2", "label": "תמונה 2" },
     { "type": "image_picker", "id": "image_3", "label": "תמונה 3" }
   ],
+  "blocks": [{ "type": "@app" }],
   "presets": [{ "name": "EDEN – חלון מועדון" }]
 }
 {% endschema %}

@@ -223,3 +223,16 @@ LIMIT 1000
 ### ייצוא ומבצעים
 - Customers → Segments → "חברות מועדון EDEN" → **Export** (CSV עם שם, מייל, טלפון, אישור דיוור, תגיות כולל תאריך הצטרפות).
 - Marketing → Shopify Email → נמענים: "חברות מועדון EDEN – מאשרות דיוור".
+
+### בדיקה 12.11 – למה הקבוצה ריקה
+- בתבנית החיה ("EDEN Club Pop-up") הכפתור רק מפנה להתחברות לחשבון – **אין שם רישום**, ולכן שום הצטרפות לא נשמרה ב־Shopify.
+- טופס ההצטרפות נמצא רק בטיוטה "EDEN Club – טופס הצטרפות".
+- לא נמצאו הרשמות קודמות לטופס. התחברות ראשונה לחשבון אחרי עליית החלון: לקוחה אחת (12.11, 09:21) – אפשרית, לא מאומתת; לא סומנה.
+
+### הרשמה שנשמרת ב־Shopify גם ללקוחה קיימת – Shopify Forms (חינם, של Shopify)
+1. Apps → App Store → **Shopify Forms** → Install.
+2. Create form → **Inline** · שדה Email (חובה) · **Customer tags:** `EDEN_CLUB_MEMBER` · אישור דיוור מסומן · הודעת הצלחה: "ברוכה הבאה ל־EDEN BEAUTY CLUB ♡".
+3. Online Store → Themes → "EDEN Club – טופס הצטרפות" → Customize → Footer → **EDEN – חלון מועדון** → Add block → Shopify Forms → לבחור את הטופס → Save.
+   (בלי בלוק – החלון משתמש בטופס המובנה, שמוסיף תגית בוודאות רק ללקוחה חדשה.)
+4. תאריך הצטרפות – ב־Flow: Trigger של Shopify Forms (form submitted) → Add customer tags → `EDEN_CLUB_JOINED_{{ "now" | date: "%Y-%m-%d" }}`.
+5. בדיקה: הרשמה בתצוגה המקדימה עם מייל קיים → לוודא בכרטיס הלקוחה תגית + בקבוצה "חברות מועדון EDEN" → רק אז Publish.
