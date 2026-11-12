@@ -1,0 +1,33 @@
+{%- comment -%}
+  EDEN upsell – product page block "מומלץ לשלב עם".
+  Loaded after the page is ready by assets/eden-upsell.js (Section Rendering API: /products/<handle>?section_id=eden-pairs),
+  so it never slows down the product page. Can also be added to a product template in the theme editor.
+{%- endcomment -%}
+{%- if product -%}
+  {%- liquid
+    assign exclude = ',' | append: product.handle | append: ','
+    for item in cart.items
+      assign exclude = exclude | append: item.product.handle | append: ','
+    endfor
+    assign manual = product.metafields.eden.upsell_products.value | map: 'handle' | join: ','
+  -%}
+  {%- capture targets -%}{%- render 'eden-upsell-rules', p: product -%}{%- endcapture -%}
+  {%- capture cards -%}{%- render 'eden-upsell-picks', targets: targets, manual: manual, exclude: exclude, limit: 6, origin: 'product' -%}{%- endcapture -%}
+  {%- if cards != blank -%}
+    <eden-upsell class="eu-pairs" data-origin="product">
+      <div class="eu-pairs__inner">
+        <h2 class="eu-pairs__title">מומלץ לשלב עם</h2>
+        <div class="eu-recs__track eu-pairs__track">{{ cards }}</div>
+      </div>
+    </eden-upsell>
+  {%- endif -%}
+{%- endif -%}
+{% schema %}
+{
+  "name": "EDEN – מומלץ לשלב עם",
+  "tag": "section",
+  "class": "eden-pairs-section",
+  "enabled_on": { "templates": ["product"] },
+  "presets": [{ "name": "EDEN – מומלץ לשלב עם" }]
+}
+{% endschema %}

@@ -1,0 +1,126 @@
+{%- comment -%}
+  EDEN upsell – picks products and renders the cards.
+  Never picks: products already in the cart / excluded, sold-out products, gift cards.
+  Prices come from Shopify (sale price + compare-at). Nothing is ever added without a click.
+
+  @param {string} targets   - output of eden-upsell-rules (one or more products, joined)
+  @param {string} manual    - comma list of product handles chosen manually (metafield eden.upsell_products) – shown first
+  @param {string} exclude   - ",handle,handle," products that must not be suggested
+  @param {number} [limit]   - max cards (default 8)
+  @param {number} [remaining] - cents missing for free shipping (0 = none); the cheapest pick that covers it is shown first
+  @param {string} origin    - 'cart' | 'product' – stored on the line item for performance tracking
+{%- endcomment -%}
+{%- liquid
+  assign limit = limit | default: 8
+  assign remaining = remaining | default: 0
+  assign picked = ','
+  assign count = 0
+
+  comment
+    1) manual picks first
+  endcomment
+  assign manual_list = manual | split: ','
+  for h in manual_list
+    if count >= limit
+      break
+    endif
+    assign key = ',' | append: h | append: ','
+    if h == blank or exclude contains key or picked contains key
+      continue
+    endif
+    assign mp = all_products[h]
+    if mp.available and mp.gift_card? == false
+      assign picked = picked | append: h | append: ','
+      assign count = count | plus: 1
+    endif
+  endfor
+
+  comment
+    2) rule targets (+ a general fallback), at most 2 products per target for variety
+  endcomment
+  assign all_targets = targets | append: '|c:מוצרים-נלווים'
+  assign seen_targets = '|'
+  assign target_list = all_targets | split: '|'
+  for tg in target_list
+    if count >= limit
+      break
+    endif
+    if tg == blank
+      continue
+    endif
+    assign tkey = '|' | append: tg | append: '|'
+    if seen_targets contains tkey
+      continue
+    endif
+    assign seen_targets = seen_targets | append: tg | append: '|'
+
+    assign parts = tg | split: ':'
+    assign kind = parts[0]
+    assign handle = parts[1]
+    assign word = parts[2] | default: ''
+    assign c = collections[handle]
+    if c == blank
+      continue
+    endif
+    assign per = 0
+    for x in c.products limit: 50
+      if per >= 2 or count >= limit
+        break
+      endif
+      unless x.available
+        continue
+      endunless
+      if x.gift_card?
+        continue
+      endif
+      if kind == 'k'
+        unless x.title contains word
+          continue
+        endunless
+        comment
+          keyword targets are accessories (botox, peroxide, brush…) – never another full kit
+        endcomment
+        if x.title contains 'ערכה' or x.title contains 'ערכת'
+          continue
+        endif
+      endif
+      assign key = ',' | append: x.handle | append: ','
+      if exclude contains key or picked contains key
+        continue
+      endif
+      assign picked = picked | append: x.handle | append: ','
+      assign count = count | plus: 1
+      assign per = per | plus: 1
+    endfor
+  endfor
+
+  comment
+    3) free-shipping helper: the cheapest pick whose price covers what is missing goes first
+  endcomment
+  assign fit = ''
+  assign fit_price = 0
+  assign picked_list = picked | split: ','
+  if remaining > 0
+    for h in picked_list
+      if h == blank
+        continue
+      endif
+      assign pp = all_products[h]
+      if pp.price >= remaining
+        if fit_price == 0 or pp.price < fit_price
+          assign fit = h
+          assign fit_price = pp.price
+        endif
+      endif
+    endfor
+  endif
+-%}
+{%- if count > 0 -%}
+  {%- if fit != blank -%}
+    {%- render 'eden-upsell-card', p: all_products[fit], origin: origin, badge: 'משלים למשלוח חינם' -%}
+  {%- endif -%}
+  {%- for h in picked_list -%}
+    {%- if h == blank or h == fit -%}{%- continue -%}{%- endif -%}
+    {%- render 'eden-upsell-card', p: all_products[h], origin: origin -%}
+  {%- endfor -%}
+{%- endif -%}

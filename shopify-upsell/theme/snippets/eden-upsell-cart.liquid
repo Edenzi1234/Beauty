@@ -1,0 +1,62 @@
+{%- comment -%}
+  EDEN upsell – cart drawer block: free-shipping progress + "מוצרים שישלימו לך את הקנייה".
+  Rendered by snippets/header-actions.liquid inside the drawer, so the theme re-renders it on every cart change.
+  @param {string} part - 'bar' (progress, above the items) | 'recs' (recommendations, below the items)
+{%- endcomment -%}
+{%- liquid
+  assign threshold = shop.metafields.eden.free_shipping_threshold.value | default: 400 | times: 100
+  assign total = cart.total_price
+  assign remaining = threshold | minus: total
+  if remaining < 0
+    assign remaining = 0
+  endif
+-%}
+{%- if cart.item_count > 0 -%}
+  {%- if part == 'bar' and threshold > 0 -%}
+    {%- liquid
+      assign pct = total | times: 100 | divided_by: threshold
+      if pct > 100
+        assign pct = 100
+      endif
+    -%}
+    <div class="eu-ship{% if remaining == 0 %} is-free{% endif %}" role="status">
+      <p class="eu-ship__text">
+        {%- if remaining == 0 -%}
+          <span aria-hidden="true">✦</span> יש לך משלוח חינם!
+        {%- else -%}
+          חסרים לך רק <b>{{ remaining | money }}</b> למשלוח חינם!
+        {%- endif -%}
+      </p>
+      <div class="eu-ship__track" aria-hidden="true"><span class="eu-ship__fill" style="--eu-pct: {{ pct }}%"></span></div>
+    </div>
+  {%- elsif part == 'recs' -%}
+    {%- liquid
+      assign exclude = ','
+      assign manual = ''
+      assign targets = ''
+      for item in cart.items
+        assign exclude = exclude | append: item.product.handle | append: ','
+      endfor
+      for item in cart.items limit: 6
+        assign m = item.product.metafields.eden.upsell_products.value | map: 'handle' | join: ','
+        if m != blank
+          assign manual = manual | append: m | append: ','
+        endif
+        capture r
+          render 'eden-upsell-rules', p: item.product
+        endcapture
+        assign targets = targets | append: r
+      endfor
+    -%}
+    {%- capture cards -%}{%- render 'eden-upsell-picks', targets: targets, manual: manual, exclude: exclude, limit: 8, remaining: remaining, origin: 'cart' -%}{%- endcapture -%}
+    {%- if cards != blank -%}
+      <eden-upsell class="eu-recs" data-origin="cart">
+        <div class="eu-recs__head">
+          <h3 class="eu-recs__title">מוצרים שישלימו לך את הקנייה</h3>
+          {%- if remaining > 0 -%}<p class="eu-recs__sub">חלקם יעזרו לך להגיע למשלוח חינם</p>{%- endif -%}
+        </div>
+        <div class="eu-recs__track">{{ cards }}</div>
+      </eden-upsell>
+    {%- endif -%}
+  {%- endif -%}
+{%- endif -%}

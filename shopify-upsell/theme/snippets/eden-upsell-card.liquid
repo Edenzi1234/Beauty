@@ -1,0 +1,39 @@
+{%- comment -%}
+  EDEN upsell – one recommended product: image, name, real price (sale + compare-at), variant choice, quick "+" add.
+  @param {product} p
+  @param {string} origin - tracking source written to the hidden line-item property _eden_rec
+  @param {string} [badge]
+{%- endcomment -%}
+{%- liquid
+  assign v = p.selected_or_first_available_variant
+  unless v.available
+    assign v = p.first_available_variant
+  endunless
+-%}
+{%- if v -%}
+<div class="eu-card" data-eu-card>
+  {%- if badge != blank -%}<span class="eu-card__badge">{{ badge }}</span>{%- endif -%}
+  <a class="eu-card__media" href="{{ p.url }}" tabindex="-1" aria-hidden="true">
+    {%- if p.featured_image -%}
+      {{ p.featured_image | image_url: width: 300, height: 300, crop: 'center' | image_tag: loading: 'lazy', width: 150, height: 150, alt: p.featured_image.alt | default: p.title, class: 'eu-card__img' }}
+    {%- endif -%}
+  </a>
+  <a class="eu-card__title" href="{{ p.url }}">{{ p.title }}</a>
+  <div class="eu-card__price" data-eu-price>
+    {%- if v.compare_at_price > v.price -%}<s>{{ v.compare_at_price | money }}</s>{%- endif -%}
+    <span>{{ v.price | money }}</span>
+  </div>
+  {%- unless p.has_only_default_variant -%}
+    <select class="eu-card__select" data-eu-variant aria-label="בחירת {{ p.options.first | escape }} – {{ p.title | escape }}">
+      {%- for vv in p.variants -%}
+        {%- if vv.available -%}
+          <option value="{{ vv.id }}" data-price="{{ vv.price | money | escape }}" data-compare="{% if vv.compare_at_price > vv.price %}{{ vv.compare_at_price | money | escape }}{% endif %}"{% if vv.id == v.id %} selected{% endif %}>{{ vv.title | escape }}</option>
+        {%- endif -%}
+      {%- endfor -%}
+    </select>
+  {%- endunless -%}
+  <button type="button" class="eu-card__add" data-eu-add data-variant="{{ v.id }}" data-origin="{{ origin }}" data-product="{{ p.handle | escape }}" aria-label="הוספה לסל: {{ p.title | escape }}">
+    <span class="eu-card__plus" aria-hidden="true">+</span><span class="eu-card__ok" aria-hidden="true">✓</span><span class="eu-card__spin" aria-hidden="true"></span>
+  </button>
+</div>
+{%- endif -%}

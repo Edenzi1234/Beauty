@@ -1,0 +1,61 @@
+{%- comment -%}
+  EDEN upsell – matching rules for ONE product.
+  Outputs a list of targets, each "|c:<collection-handle>" (any product of the collection)
+  or "|k:<collection-handle>:<word>" (only products of the collection whose title contains <word>).
+  Order matters: earlier targets are shown first. Edit the rules here – no other file needs to change.
+
+  @param {product} p
+{%- endcomment -%}
+{%- liquid
+  assign cols = p.collections | map: 'handle' | join: ','
+  assign t = p.title | downcase
+
+  comment
+    Nails
+  endcomment
+  if cols contains 'פוליגל' or t contains 'פוליג' or t contains 'polygel'
+    echo '|c:טיפוסים-לבניית-ציפורניים|c:מכחולים-לציפורניים|k:מוצרים-נלווים:נוזל'
+  elsif cols contains 'ג-ל-בנייה' or t contains 'ג׳ל בנייה' or t contains "ג'ל בנייה"
+    echo '|c:טיפוסים-לבניית-ציפורניים|c:מכחולים-לציפורניים|c:בייס-וטופ'
+  elsif cols contains 'לק-ג-ל' or cols contains 'koyo-ראבר-בייס' or cols contains 'buba-french' or cols contains 'ראבר-בייס'
+    echo '|c:בייס-וטופ|c:פצירות-צבתיות|c:מכונת-שיוף-יבוש'
+  elsif cols contains 'בייס-וטופ'
+    echo '|c:פצירות-צבתיות|c:ראשי-שיוף|c:מכונת-שיוף-יבוש'
+  elsif cols contains 'טיפוסים' or cols contains 'מכחולים' or cols contains 'פצירות' or cols contains 'ראשי-שיוף'
+    echo '|c:בייס-וטופ|c:פצירות-צבתיות'
+  endif
+
+  comment
+    Lash lift: kits and steps → silicone pads, lash botox, tint
+  endcomment
+  if t contains 'ריסים' or t contains 'novel' or t contains 'thuya' or t contains 'elleebana' or t contains 'טויה'
+    if t contains 'ערכ' or t contains 'שלב' or t contains 'הרמת'
+      echo '|c:סיליקונים-להרמת-ריסים|k:ערכות-ומוצרים:בוטוקס|c:צבע-לריסים-ולגבות'
+    endif
+  endif
+
+  comment
+    Lash and brow tint → hydrogen peroxide, brush, mixing cup
+  endcomment
+  if cols contains 'צבע-לריסים-ולגבות'
+    unless t contains 'חמצן'
+      echo '|k:צבע-לריסים-ולגבות:חמצן|k:מוצרים-נלווים:מברשת|k:מוצרים-נלווים:כוס'
+    endunless
+  endif
+
+  comment
+    Brow lift / lamination kits → brow care and tools
+  endcomment
+  if t contains 'גבות'
+    if t contains 'ערכ' or t contains 'הרמ' or t contains 'למינציה'
+      echo '|k:עיצוב-גבות-1:מרכך|c:עיצוב-גבות-1|k:מוצרים-נלווים:מברשת'
+    endif
+  endif
+
+  comment
+    Silicone pads → lift glue, accessories
+  endcomment
+  if cols contains 'סיליקונים'
+    echo '|k:ערכות-ומוצרים:דבק|c:מוצרים-נלווים'
+  endif
+-%}
