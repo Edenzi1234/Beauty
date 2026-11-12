@@ -3,8 +3,9 @@
   - Shown once per visit (sessionStorage), after the delay set below. Never to logged-in customers (they are club members),
     never again after joining, and never on cart / account / club / password pages. Checkout is a separate site and is untouched.
   - Nothing heavy loads until it opens: the markup and images live in a <template> and are cloned only when shown.
-  - Joining = Shopify account sign-up (new customer accounts: email + one-time code), then back to the club page with
-    ?eden_src=popup. On that return the logged-in visitor fires the event eden_club_popup_joined (Customer events).
+  - Joining = the email form below (Shopify customer form). On a successful post Shopify creates the customer, or finds the
+    existing one by email, adds the tags EDEN_CLUB_MEMBER + EDEN_CLUB_JOINED_<yyyy-mm-dd> and sets email consent.
+    The segment "חברות מועדון EDEN" filters on EDEN_CLUB_MEMBER only. Nothing else in Shopify adds that tag.
 {%- endcomment -%}
 {%- liquid
   assign s = section.settings
@@ -96,9 +97,22 @@
               {%- endfor -%}
             </ul>
 
-            <div class="ecp__step ecp__step--cta">
-              <a class="ecp__btn" href="{{ join_url }}" data-ecp-join>{% if s.prelaunch %}{{ s.button_soon }}{% else %}{{ s.button }}{% endif %}</a>
-              <p class="ecp__fine">{{ s.button_note }}</p>
+            <div class="ecp__step ecp__step--form" data-ecp-step="form">
+              {%- form 'customer', class: 'ecp__form', id: 'ecp-form' -%}
+                {%- if form.posted_successfully? -%}<span hidden data-ecp-ok></span>{%- endif -%}
+                {%- if form.errors -%}<p class="ecp__err" role="alert" data-ecp-errors>{{ form.errors | default_errors }}</p>{%- endif -%}
+                <input type="hidden" name="contact[tags]" value="EDEN_CLUB_MEMBER, EDEN_CLUB_JOINED_{{ 'now' | date: '%Y-%m-%d' }}" data-ecp-tags>
+                <label class="ecp__label" for="ecp-email-{{ section.id }}">כתובת המייל שלך</label>
+                <input class="ecp__input" id="ecp-email-{{ section.id }}" type="email" name="contact[email]" required autocomplete="email" inputmode="email" placeholder="name@email.com" dir="ltr">
+                <button type="submit" class="ecp__btn">{% if s.prelaunch %}{{ s.button_soon }}{% else %}{{ s.button }}{% endif %}</button>
+                <p class="ecp__fine">{{ s.button_note }}</p>
+              {%- endform -%}
+            </div>
+
+            <div class="ecp__step ecp__step--done" data-ecp-step="done" hidden>
+              <p class="ecp__done">ברוכה הבאה ל־EDEN BEAUTY CLUB ♡</p>
+              <p class="ecp__text">נרשמת בהצלחה. כדי לצבור ולממש – התחברי לחשבון עם אותו מייל (מקבלים קוד אימות למייל).</p>
+              <a class="ecp__btn" href="{{ join_url }}" data-ecp-login>להתחברות לחשבון שלי</a>
             </div>
 
             <button type="button" class="ecp__later" data-ecp-close>אולי בפעם אחרת</button>
@@ -111,7 +125,7 @@
   <style>
     eden-club-popup[hidden] { display: none; }
     .ecp { --rose: #c2456a; --deep: #9a3f52; --blush: #fde3ea; --champ: #c9a27a; --ink: #4a2530;
-      position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; padding: 16px; font-family: inherit; color: var(--ink); text-align: right; }
+      position: fixed; inset: 0; z-index: 1000000; display: grid; place-items: center; padding: 16px; font-family: inherit; color: var(--ink); text-align: right; }
     .ecp__backdrop { position: absolute; inset: 0; background: rgba(60, 20, 35, .45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity .5s ease; }
     .ecp__card { position: relative; display: grid; grid-template-columns: 1fr; width: min(880px, 100%); max-height: min(92vh, 760px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; border-radius: 28px;
       background: linear-gradient(180deg, #fffaf8, #fff 40%); box-shadow: 0 40px 100px rgba(80, 20, 40, .35), 0 0 0 1px rgba(201, 162, 122, .35);
@@ -185,7 +199,10 @@
     .ecp__input { flex: 1 1 200px; min-width: 0; min-height: 48px; padding: 0 16px; border-radius: 999px; border: 1.5px solid rgba(201, 162, 122, .6); background: #fff; font: inherit; font-size: 15px; color: var(--ink); text-align: left; }
     .ecp__input:focus { outline: none; border-color: var(--rose); box-shadow: 0 0 0 3px rgba(194, 69, 106, .15); }
     .ecp__err { margin: 0 0 8px; font-size: 13px; color: #b3261e; }
-    .ecp__step--cta .ecp__fine { text-align: center; }
+    .ecp__form { display: grid; gap: 10px; }
+    .ecp__form .ecp__input { width: 100%; box-sizing: border-box; }
+    .ecp__form .ecp__fine { margin: 0; text-align: center; }
+    .ecp__label { margin-bottom: -4px; }
     .ecp__fine { margin: 8px 0 0; font-size: 11.5px; line-height: 1.45; color: #9b7a85; }
     .ecp__link { display: inline-block; margin-top: 8px; font-size: 13px; color: var(--deep); }
     .ecp__done { margin: 0; font-size: 20px; font-weight: 700; color: var(--deep); }
@@ -200,11 +217,17 @@
     (() => {
       const host = document.querySelector('eden-club-popup[data-section="{{ section.id }}"]');
       if (!host) return;
-      const SEEN = 'edenClubPopupSeen', JOINED = 'edenClubJoined';
-      try { if (localStorage.getItem(JOINED)) return; } catch (e) {}
+      const SEEN = 'edenClubPopupSeen', JOINED = 'edenClubJoined', SUBMIT = 'edenClubPopupSubmit';
+      const tpl = host.querySelector('template').content;
+      const posted = !!tpl.querySelector('[data-ecp-ok]') || /[?&]customer_posted=true/.test(location.search);
+      const formError = !!tpl.querySelector('[data-ecp-errors]');
+      let submitted = false;
+      try { submitted = sessionStorage.getItem(SUBMIT) === '1'; } catch (e) {}
+      try { if (localStorage.getItem(JOINED) && !(posted && submitted)) return; } catch (e) {}
       const editor = window.Shopify && Shopify.designMode;
       let root, last;
       const track = (event, data) => { try { window.Shopify && Shopify.analytics && Shopify.analytics.publish('eden_club_popup_' + event, data || {}); } catch (e) {} };
+      const step = (name) => root.querySelectorAll('[data-ecp-step]').forEach((el) => (el.hidden = el.dataset.ecpStep !== name));
       const onKey = (e) => { if (e.key === 'Escape') close(); };
       const close = () => {
         if (!root) return;
@@ -214,23 +237,43 @@
         setTimeout(() => { root && root.remove(); root = null; last && last.focus && last.focus({ preventScroll: true }); }, 320);
         track('close');
       };
-      const open = () => {
+      const open = (initial) => {
         if (root) return;
         last = document.activeElement;
         host.hidden = false;
         host.append(host.querySelector('template').content.cloneNode(true));
         root = host.querySelector('.ecp');
+        if (initial) step(initial);
         document.documentElement.style.overflow = 'hidden';
         requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('is-open')));
         root.addEventListener('click', (e) => {
           if (e.target.closest('[data-ecp-close]')) close();
-          if (e.target.closest('[data-ecp-join]')) track('join_click');
+          if (e.target.closest('[data-ecp-login]')) track('login_click');
+        });
+        const form = root.querySelector('#ecp-form');
+        form?.addEventListener('submit', () => {
+          // join date in the visitor's own calendar day (the page may be cached from an earlier day)
+          const d = new Date(), p = (n) => String(n).padStart(2, '0');
+          const tags = form.querySelector('[data-ecp-tags]');
+          if (tags) tags.value = 'EDEN_CLUB_MEMBER, EDEN_CLUB_JOINED_' + d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+          try { sessionStorage.setItem(SUBMIT, '1'); } catch (e) {}
+          track('submit');
         });
         document.addEventListener('keydown', onKey);
-        root.querySelector('.ecp__close').focus({ preventScroll: true });
+        if (initial !== 'done') root.querySelector('.ecp__close').focus({ preventScroll: true });
         try { sessionStorage.setItem(SEEN, '1'); } catch (e) {}
-        track('view');
+        track('view', { step: initial || 'form' });
       };
+      // Shopify reloads the page after the post (?customer_posted=true) – show the result once
+      if (submitted && (posted || formError)) {
+        try { sessionStorage.removeItem(SUBMIT); } catch (e) {}
+        if (posted) {
+          try { localStorage.setItem(JOINED, String(Date.now())); } catch (e) {}
+          track('joined');
+          return open('done');
+        }
+        return open('form');
+      }
       let seen = false;
       try { seen = sessionStorage.getItem(SEEN) === '1'; } catch (e) {}
       if (seen && !editor) return;
@@ -260,7 +303,7 @@
     { "type": "text", "id": "bullet_3", "label": "יתרון 3", "default": "עדכונים על מבצעים וקולקציות חדשות" },
     { "type": "text", "id": "button", "label": "טקסט הכפתור", "default": "אני רוצה להצטרף למועדון" },
     { "type": "text", "id": "button_soon", "label": "טקסט הכפתור במצב \"בקרוב\"", "default": "עדכני אותי כשהמועדון נפתח" },
-    { "type": "text", "id": "button_note", "label": "שורה מתחת לכפתור", "default": "ההרשמה חינם – נכנסים עם כתובת המייל ומקבלים קוד אימות" },
+    { "type": "text", "id": "button_note", "label": "שורה מתחת לכפתור (אישור דיוור)", "default": "ההצטרפות חינם. בהצטרפות את מאשרת לקבל מאיתנו מבצעים ועדכונים במייל – אפשר להסיר את עצמך בכל רגע." },
     { "type": "page", "id": "club_page", "label": "עמוד המועדון (חוזרים אליו אחרי ההרשמה)" },
     { "type": "header", "content": "תמונות" },
     { "type": "image_picker", "id": "logo", "label": "לוגו (ריק = הלוגו של האתר)" },
