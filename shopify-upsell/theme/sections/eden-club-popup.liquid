@@ -61,6 +61,10 @@
     {%- endif -%}
   {%- endcapture -%}
 
+  {%- if section.blocks.size > 0 -%}
+    {%- comment -%} rendered with the page (not inside <template>) so the app's own script finds and starts it; moved into the pop-up on open {%- endcomment -%}
+    <div class="ecp-app-src" data-ecp-app-src data-section="{{ section.id }}" hidden>{%- for block in section.blocks -%}{%- render block -%}{%- endfor -%}</div>
+  {%- endif -%}
   <eden-club-popup data-delay="{{ s.delay | default: 3 }}" data-section="{{ section.id }}" hidden>
     <template>
       <div class="ecp" role="dialog" aria-modal="true" aria-labelledby="ecp-title-{{ section.id }}" dir="rtl">
@@ -100,7 +104,7 @@
             <div class="ecp__step ecp__step--form" data-ecp-step="form">
               {%- if section.blocks.size > 0 -%}
                 {%- comment -%} Shopify Forms (free, by Shopify) app block: saves the sign-up in Shopify and tags new AND existing customers {%- endcomment -%}
-                <div class="ecp__app" data-ecp-app>{%- for block in section.blocks -%}{%- render block -%}{%- endfor -%}</div>
+                <div class="ecp__app" data-ecp-app></div>
               {%- else -%}
               {%- form 'customer', class: 'ecp__form', id: 'ecp-form' -%}
                 {%- if form.posted_successfully? -%}<span hidden data-ecp-ok></span>{%- endif -%}
@@ -240,7 +244,10 @@
         root.classList.add('is-closing');
         document.documentElement.style.removeProperty('overflow');
         document.removeEventListener('keydown', onKey);
-        setTimeout(() => { root && root.remove(); root = null; last && last.focus && last.focus({ preventScroll: true }); }, 320);
+        setTimeout(() => {
+          const appSrc = document.querySelector('[data-ecp-app-src][data-section="{{ section.id }}"]'), appSlot = root && root.querySelector('[data-ecp-app]');
+          if (appSrc && appSlot) while (appSlot.firstChild) appSrc.append(appSlot.firstChild);
+          root && root.remove(); root = null; last && last.focus && last.focus({ preventScroll: true }); }, 320);
         track('close');
       };
       const open = (initial) => {
@@ -250,6 +257,8 @@
         host.append(host.querySelector('template').content.cloneNode(true));
         root = host.querySelector('.ecp');
         if (initial) step(initial);
+        const appSrc = document.querySelector('[data-ecp-app-src][data-section="{{ section.id }}"]'), appSlot = root.querySelector('[data-ecp-app]');
+        if (appSrc && appSlot) while (appSrc.firstChild) appSlot.append(appSrc.firstChild);
         document.documentElement.style.overflow = 'hidden';
         requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('is-open')));
         root.addEventListener('click', (e) => {
