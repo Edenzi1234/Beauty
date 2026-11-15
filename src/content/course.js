@@ -171,7 +171,7 @@ export const location = {
 }
 
 export const pricing = {
-  price: 3500,
+  price: 2900,
   originalPrice: 4000,
   notes: [], // אופציונלי: מועדים / תנאי תשלום
 }
