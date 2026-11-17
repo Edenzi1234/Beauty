@@ -46,7 +46,7 @@
   if pct > 100
     assign pct = 100
   endif
-  assign options = shop.metaobjects.eden_gift_option.values | sort: 'sort'
+  assign options = shop.metaobjects.eden_gift_option.values
   assign root = routes.root_url | append: '/' | replace: '//', '/'
 -%}
 <span hidden data-eden-gift-config data-threshold="{{ threshold }}" data-member="{{ is_member }}" data-enabled="{{ enabled }}"></span>
