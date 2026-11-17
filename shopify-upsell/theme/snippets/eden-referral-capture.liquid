@@ -1,0 +1,35 @@
+{%- comment -%}
+  "חברה מביאה חברה" – captures ?ref=<member id> on any page:
+  - remembers it for 60 days (localStorage), ignores a member's own link (self-referral)
+  - writes it to the cart as attribute eden_ref → it appears on the order (Additional details) for Flow
+  - adds the tag EDEN_REF_BY_<id> to the club join forms (pop-up + referral page)
+  No personal data is stored in the browser – only the referrer's id.
+{%- endcomment -%}
+<script>
+  (() => {
+    const KEY = 'edenRef', DAYS = 60, me = {{ customer.id | json }};
+    const root = (window.Shopify && Shopify.routes && Shopify.routes.root) || '/';
+    let ref = null;
+    try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && /^\d{6,20}$/.test(s.id) && Date.now() - s.t < DAYS * 864e5) ref = s.id; } catch (e) {}
+    const m = location.search.match(/[?&]ref=(\d{6,20})(?:&|$)/);
+    if (m) {
+      ref = m[1];
+      try { localStorage.setItem(KEY, JSON.stringify({ id: ref, t: Date.now() })); } catch (e) {}
+      const send = () => { try { Shopify.analytics.publish('eden_referral_visit', { ref }); } catch (e) {} };
+      if (document.readyState === 'complete') send(); else window.addEventListener('load', send, { once: true });
+    }
+    if (!ref || (me && String(me) === ref)) return;
+    window.edenRef = ref;
+    try {
+      if (sessionStorage.getItem('edenRefCart') !== ref) {
+        fetch(root + 'cart/update.js', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ attributes: { eden_ref: ref } }) })
+          .then((r) => { if (r.ok) sessionStorage.setItem('edenRefCart', ref); }).catch(() => {});
+      }
+    } catch (e) {}
+    // bubble phase: runs after the forms' own submit handlers have set the member + date tags
+    document.addEventListener('submit', (e) => {
+      const t = e.target && e.target.querySelector && e.target.querySelector('[data-ecp-tags],[data-eden-tags]');
+      if (t && t.value.indexOf('EDEN_REF_BY_') === -1) t.value += ', EDEN_REF_BY_' + ref;
+    });
+  })();
+</script>

@@ -16,7 +16,7 @@
   if template.name == 'cart' or template.name == 'password' or template.name == 'gift_card' or template.directory == 'customers'
     assign skip = true
   endif
-  if request.page_type == 'page' and page.handle == 'eden-club'
+  if request.page_type == 'page' and page.handle == 'eden-club' or request.page_type == 'page' and page.handle == 'eden-club-members'
     assign skip = true
   endif
 
@@ -30,6 +30,7 @@
   assign join_url = root | append: 'account/login?return_url=' | append: return_path
   assign logo_img = s.logo | default: settings.logo
 -%}
+{%- render 'eden-referral-capture' -%}
 {%- if customer -%}
   {%- comment -%} back from the pop-up sign-up: count it once {%- endcomment -%}
   <script>

@@ -1,0 +1,243 @@
+{%- comment -%}
+  EDEN BEAUTY CLUB – "חברה מביאה חברה" (page template page.eden-referral).
+  Data lives in Shopify itself:
+  - settings: shop metafields eden.referral_enabled / referral_amount / referral_min_order / referral_wait_days
+    (Settings → Custom data → Shop).
+  - member: tag EDEN_CLUB_MEMBER. Personal link = /?ref=<customer id>.
+  - tracking (written by Flow, see docs/eden-referral-flow.md): customer metafields eden.ref_invited, eden.ref_purchased,
+    eden.ref_credit_total, eden.ref_log; wallet = Shopify store credit.
+  The referral itself is captured site-wide by the snippet in sections/eden-club-popup.liquid (?ref= → cart attribute
+  eden_ref + tag EDEN_REF_BY_<id> on the join form).
+{%- endcomment -%}
+{%- liquid
+  assign s = section.settings
+  assign cfg = shop.metafields.eden
+  assign enabled = cfg.referral_enabled.value
+  if cfg.referral_enabled == blank
+    assign enabled = true
+  endif
+  assign amount = cfg.referral_amount.value | default: 20
+  assign min_order = cfg.referral_min_order.value | default: 500
+  assign wait_days = cfg.referral_wait_days.value | default: 14
+  assign cents = amount | times: 100 | round | modulo: 100
+  if cents == 0
+    assign amount_txt = amount | round | append: ' ₪'
+  else
+    assign amount_txt = amount | round: 2 | append: ' ₪'
+  endif
+  assign cents = min_order | times: 100 | round | modulo: 100
+  if cents == 0
+    assign min_txt = min_order | round | append: ' ₪'
+  else
+    assign min_txt = min_order | round: 2 | append: ' ₪'
+  endif
+
+  assign mode = 'guest'
+  assign is_member = false
+  if customer
+    if customer.tags contains 'EDEN_CLUB_MEMBER'
+      assign is_member = true
+      assign mode = 'member'
+    else
+      assign mode = 'customer'
+    endif
+  elsif s.show_demo and request.design_mode
+    assign mode = 'demo'
+  elsif s.show_demo and s.demo_public
+    assign mode = 'demo'
+  endif
+
+  assign root = routes.root_url | append: '/' | replace: '//', '/'
+  assign self_url = request.path | default: '/pages/eden-club-members'
+  assign self_enc = self_url | url_encode
+  assign login_url = root | append: 'account/login?return_url=' | append: self_enc
+
+  if mode == 'member'
+    assign ref_id = customer.id
+    assign invited = customer.metafields.eden.ref_invited.value | default: 0
+    assign purchased = customer.metafields.eden.ref_purchased.value | default: 0
+    assign credited = customer.metafields.eden.ref_credit_total.value | default: 0
+    assign log = customer.metafields.eden.ref_log.value
+  elsif mode == 'demo'
+    assign ref_id = '1234567890'
+    assign invited = 3
+    assign purchased = 1
+    assign credited = 20
+    assign log = '2026-11-02 | נועה כ. | זיכוי התקבל: 20 ₪;;2026-11-09 | מיכל ל. | רכשה – ממתינה לסוף תקופת ההחזרה;;2026-11-12 | שירה א. | הצטרפה – עוד לא רכשה'
+  endif
+  assign ref_link = shop.url | append: root | append: '?ref=' | append: ref_id
+  assign cents = credited | times: 100 | round | modulo: 100
+  if cents == 0
+    assign credited_txt = credited | round | append: ' ₪'
+  else
+    assign credited_txt = credited | round: 2 | append: ' ₪'
+  endif
+  capture wa_text
+    echo s.wa_message | replace: '[סכום]', amount_txt | replace: '[מינימום]', min_txt
+    echo ' '
+    echo ref_link
+  endcapture
+-%}
+
+<section class="erf" id="eden-referral" dir="rtl">
+  <div class="erf__wrap">
+    <header class="erf__hero">
+      <p class="erf__kicker">EDEN BEAUTY CLUB</p>
+      <h1 class="erf__title">{{ s.heading }}</h1>
+      <p class="erf__lead">{{ s.subheading | replace: '[סכום]', amount_txt | replace: '[מינימום]', min_txt }}</p>
+      <div class="erf__gift" aria-hidden="true"><b>{{ amount_txt }}</b><span>לכל אחת</span></div>
+    </header>
+
+    {%- unless enabled -%}
+      <p class="erf__off" role="status">המבצע "חברה מביאה חברה" לא פעיל כרגע. צבירת 3% במועדון ממשיכה כרגיל.</p>
+    {%- endunless -%}
+
+    <ol class="erf__steps">
+      <li><span class="erf__num">1</span><b>שולחת קישור</b><p>הקישור האישי שלך – בוואטסאפ או בכל מקום.</p></li>
+      <li><span class="erf__num">2</span><b>החברה מצטרפת וקונה</b><p>רכישה ראשונה מ־{{ min_txt }} ומעלה, אחרי הנחות וללא משלוח.</p></li>
+      <li><span class="erf__num">3</span><b>שתיכן מקבלות {{ amount_txt }}</b><p>לארנק האישי, {{ wait_days }} ימים אחרי המשלוח – למימוש בקנייה הבאה.</p></li>
+    </ol>
+
+    <div class="erf__panel">
+      {%- case mode -%}
+        {%- when 'member', 'demo' -%}
+          {%- if mode == 'demo' -%}<p class="erf__demo">תצוגת דוגמה לעיצוב – נתונים לא אמיתיים</p>{%- endif -%}
+          <h2 class="erf__h2">הקישור האישי שלך</h2>
+          <div class="erf__link">
+            <input class="erf__input" type="text" value="{{ ref_link }}" readonly dir="ltr" aria-label="הקישור האישי שלך" data-erf-link>
+            <button type="button" class="erf__btn erf__btn--ghost" data-erf-copy>העתקה</button>
+          </div>
+          <a class="erf__btn erf__btn--wa" href="https://wa.me/?text={{ wa_text | strip | url_encode }}" target="_blank" rel="noopener" data-erf-wa>
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.2c0-.1-.2-.2-.5-.3Z"/></svg>
+            שיתוף בוואטסאפ
+          </a>
+
+          <h2 class="erf__h2">המעקב שלך</h2>
+          <dl class="erf__stats">
+            <div><dt>הצטרפו בקישור שלך</dt><dd>{{ invited }}</dd></div>
+            <div><dt>רכשו מ־{{ min_txt }}</dt><dd>{{ purchased }}</dd></div>
+            <div><dt>זיכויים שקיבלת</dt><dd>{{ credited_txt }}</dd></div>
+          </dl>
+          {%- if log != blank -%}
+            <ul class="erf__log">
+              {%- assign lines = log | newline_to_br | replace: ';;', '<br />' | split: '<br />' -%}
+              {%- for line in lines -%}
+                {%- assign parts = line | strip | split: '|' -%}
+                {%- if parts.size >= 3 -%}
+                  <li><span class="erf__date">{{ parts[0] | strip }}</span><b>{{ parts[1] | strip }}</b><span>{{ parts[2] | strip }}</span></li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          {%- else -%}
+            <p class="erf__muted">עוד אין הפניות. שלחי את הקישור לחברה הראשונה ♡</p>
+          {%- endif -%}
+          <p class="erf__muted">את יתרת הארנק רואים בקופה, כשמחוברות לחשבון.</p>
+
+        {%- when 'customer' -%}
+          <h2 class="erf__h2">עוד רגע ויש לך קישור אישי</h2>
+          <p class="erf__muted">הקישור האישי זמין לחברות EDEN BEAUTY CLUB. ההצטרפות חינם:</p>
+          {%- render 'eden-referral-join', section_id: section.id, email: customer.email, note: s.join_note -%}
+
+        {%- else -%}
+          <h2 class="erf__h2">כבר חברת מועדון?</h2>
+          <a class="erf__btn" href="{{ login_url }}">התחברי וקבלי את הקישור האישי</a>
+          <p class="erf__or">עוד לא חברה? הצטרפי בחינם:</p>
+          {%- render 'eden-referral-join', section_id: section.id, email: '', note: s.join_note -%}
+      {%- endcase -%}
+    </div>
+
+    <details class="erf__terms">
+      <summary>תנאי המבצע</summary>
+      <ul>
+        <li>ההטבה ניתנת כשחברה חדשה מצטרפת דרך הקישור האישי ומבצעת רכישה ראשונה בסכום של {{ min_txt }} לפחות – אחרי הנחות וללא דמי משלוח. גם רכישה של {{ min_txt }} בדיוק מזכה.</li>
+        <li>כל אחת מהשתיים מקבלת {{ amount_txt }} לארנק האישי באתר, {{ wait_days }} ימים אחרי משלוח ההזמנה ובתנאי שלא הוחזרה או בוטלה.</li>
+        <li>הזיכוי למימוש בקנייה הבאה בלבד. אין הטבת הצטרפות נוספת, וצבירת 3% במועדון נשארת כרגיל.</li>
+        <li>זיכוי אחד לכל חברה חדשה. לא ניתן להזמין את עצמך, ולא מזכים חשבונות כפולים או לקוחות שכבר קנו באתר.</li>
+        <li>EDEN BEAUTY SHOP רשאית לעדכן או להפסיק את המבצע.</li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<style>
+  .erf { --rose: #c2456a; --deep: #9a3f52; --blush: #fde3ea; --champ: #c9a27a; --ink: #4a2530;
+    background: radial-gradient(120% 80% at 80% 0%, #fff 0%, #fdeef2 45%, #fbe1e8 100%); color: var(--ink); text-align: right; padding: clamp(32px, 6vw, 72px) 16px; }
+  .erf__wrap { width: min(880px, 100%); margin-inline: auto; display: grid; gap: clamp(20px, 3vw, 32px); }
+  .erf__hero { position: relative; padding-left: 120px; }
+  @media (max-width: 600px) { .erf__hero { padding-left: 0; } }
+  .erf__kicker { margin: 0; font-size: 12.5px; letter-spacing: .36em; color: var(--champ); direction: ltr; text-align: right; font-weight: 600; }
+  .erf__title { margin: 8px 0 0; font-size: clamp(30px, 5vw, 48px); line-height: 1.08; font-weight: 700;
+    background: linear-gradient(180deg, #e0789a, var(--rose) 55%, var(--deep)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .erf__lead { margin: 12px 0 0; font-size: clamp(16px, 2vw, 19px); line-height: 1.6; color: #6b4350; max-width: 52ch; }
+  .erf__gift { position: absolute; left: 0; top: 4px; display: grid; place-items: center; align-content: center; width: 104px; height: 104px; border-radius: 50%;
+    background: linear-gradient(135deg, #e88d9b, var(--rose) 55%, var(--deep)); color: #fff; box-shadow: 0 14px 34px rgba(154, 63, 82, .35), inset 0 0 0 3px rgba(255, 255, 255, .35); }
+  .erf__gift b { font-size: 26px; line-height: 1; direction: ltr; } .erf__gift span { font-size: 12px; margin-top: 4px; font-weight: 600; }
+  @media (max-width: 600px) { .erf__gift { position: static; width: 88px; height: 88px; margin-top: 14px; } .erf__gift b { font-size: 22px; } }
+  .erf__off { margin: 0; padding: 12px 16px; border-radius: 14px; background: #fff; border: 1px solid rgba(154, 63, 82, .25); font-weight: 600; }
+  .erf__steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 749px) { .erf__steps { grid-template-columns: 1fr; } }
+  .erf__steps li { position: relative; padding: 18px 16px 16px; border-radius: 18px; background: #fff; border: 1px solid rgba(201, 162, 122, .35); box-shadow: 0 8px 22px rgba(154, 63, 82, .07); }
+  .erf__steps b { display: block; font-size: 16px; margin-top: 6px; } .erf__steps p { margin: 4px 0 0; font-size: 14px; color: #7a5560; line-height: 1.5; }
+  .erf__num { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--blush); color: var(--deep); font-weight: 700; }
+  .erf__panel { padding: clamp(18px, 3vw, 30px); border-radius: 24px; background: #fff; box-shadow: 0 24px 60px rgba(80, 20, 40, .12), 0 0 0 1px rgba(201, 162, 122, .3); display: grid; gap: 14px; }
+  .erf__h2 { margin: 6px 0 0; font-size: 20px; font-weight: 700; color: var(--deep); }
+  .erf__demo { margin: 0; padding: 6px 12px; border-radius: 99px; background: #fff5d6; color: #7a5a12; font-size: 12.5px; justify-self: start; }
+  .erf__link { display: flex; gap: 8px; flex-wrap: wrap; }
+  .erf__input { flex: 1 1 220px; min-width: 0; min-height: 50px; padding: 0 16px; border-radius: 999px; border: 1.5px solid rgba(201, 162, 122, .6); background: #fffafb; font: inherit; font-size: 14px; color: var(--ink); }
+  .erf__btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 0 24px; border: 0; border-radius: 999px; cursor: pointer; text-decoration: none;
+    background: linear-gradient(135deg, #e88d9b, var(--rose) 55%, var(--deep)); color: #fff; font: inherit; font-size: 16px; font-weight: 700; box-shadow: 0 14px 30px rgba(194, 69, 106, .3); }
+  .erf__btn--ghost { background: #fff; color: var(--deep); box-shadow: inset 0 0 0 1.5px var(--rose); min-width: 110px; }
+  .erf__btn--wa { background: #25d366; box-shadow: 0 12px 26px rgba(37, 211, 102, .3); }
+  .erf__btn:focus-visible, .erf__input:focus-visible { outline: 2px solid var(--deep); outline-offset: 3px; }
+  .erf__btn.is-done { background: var(--blush); color: var(--deep); }
+  .erf__stats { margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .erf__stats div { padding: 14px 10px; border-radius: 16px; background: var(--blush); text-align: center; }
+  .erf__stats dt { font-size: 12.5px; color: #7a5560; } .erf__stats dd { margin: 4px 0 0; font-size: 24px; font-weight: 700; color: var(--deep); }
+  .erf__log { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .erf__log li { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: baseline; padding: 10px 12px; border-radius: 12px; background: #fffafb; border: 1px solid rgba(201, 162, 122, .25); font-size: 14px; }
+  @media (max-width: 600px) { .erf__log li { grid-template-columns: 1fr; gap: 2px; } }
+  .erf__date { color: #9b7a85; font-size: 12.5px; direction: ltr; text-align: right; }
+  .erf__muted { margin: 0; font-size: 14px; color: #7a5560; }
+  .erf__or { margin: 6px 0 0; font-weight: 600; }
+  .erf__form { display: grid; gap: 10px; }
+  .erf__form .erf__input { width: 100%; box-sizing: border-box; flex: none; }
+  .erf__fine { margin: 0; font-size: 12px; color: #9b7a85; }
+  .erf__ok { margin: 0; padding: 12px 16px; border-radius: 14px; background: var(--blush); color: var(--deep); font-weight: 700; }
+  .erf__err { margin: 0; color: #b3261e; font-size: 14px; }
+  .erf__terms { font-size: 14px; color: #6b4350; } .erf__terms summary { cursor: pointer; font-weight: 700; color: var(--deep); }
+  .erf__terms ul { margin: 10px 0 0; padding-inline-start: 20px; display: grid; gap: 6px; line-height: 1.55; }
+</style>
+
+<script>
+  (() => {
+    const root = document.getElementById('eden-referral');
+    if (!root) return;
+    const input = root.querySelector('[data-erf-link]');
+    root.querySelector('[data-erf-copy]')?.addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      try { await navigator.clipboard.writeText(input.value); } catch (_) { input.select(); document.execCommand('copy'); }
+      btn.textContent = 'הועתק ✓'; btn.classList.add('is-done');
+      setTimeout(() => { btn.textContent = 'העתקה'; btn.classList.remove('is-done'); }, 2200);
+      try { Shopify.analytics.publish('eden_referral_copy', {}); } catch (_) {}
+    });
+    root.querySelector('[data-erf-wa]')?.addEventListener('click', () => { try { Shopify.analytics.publish('eden_referral_whatsapp', {}); } catch (_) {} });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "EDEN – חברה מביאה חברה",
+  "tag": "div",
+  "class": "eden-referral-section",
+  "settings": [
+    { "type": "paragraph", "content": "סכום ההטבה, מינימום ההזמנה, ימי ההמתנה והפעלה/כיבוי – ב־Settings → Custom data → Shop (שדות \"חברה מביאה חברה\")." },
+    { "type": "text", "id": "heading", "label": "כותרת", "default": "חברה מביאה חברה – שתיכן מרוויחות!" },
+    { "type": "textarea", "id": "subheading", "label": "טקסט ([סכום] ו־[מינימום] מתמלאים לבד)", "default": "הזמיני חברה ל־EDEN BEAUTY CLUB, וברכישה הראשונה שלה מעל [מינימום], שתיכן תקבלו [סכום] מתנה לקנייה הבאה!" },
+    { "type": "textarea", "id": "wa_message", "label": "הודעת הוואטסאפ (הקישור מתווסף בסוף)", "default": "היי! הצטרפי איתי ל־EDEN BEAUTY CLUB 💗 ברכישה הראשונה שלך מ־[מינימום] שתינו מקבלות [סכום] מתנה לקנייה הבאה:" },
+    { "type": "text", "id": "join_note", "label": "שורה מתחת לטופס ההצטרפות", "default": "ההצטרפות חינם. בהצטרפות את מאשרת לקבל מאיתנו מבצעים ועדכונים במייל – אפשר להסיר את עצמך בכל רגע." },
+    { "type": "checkbox", "id": "show_demo", "label": "תצוגת דוגמה בעורך (לעיצוב בלבד)", "default": true },
+    { "type": "checkbox", "id": "demo_public", "label": "תצוגת דוגמה גם למבקרות לא מחוברות (רק לבדיקה – לכבות לפני פרסום)", "default": false }
+  ],
+  "presets": [{ "name": "EDEN – חברה מביאה חברה" }]
+}
+{% endschema %}

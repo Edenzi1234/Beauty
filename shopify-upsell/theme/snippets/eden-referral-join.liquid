@@ -1,0 +1,17 @@
+{%- comment -%}
+  Join form on the referral page – same Shopify customer form as the club pop-up: tags EDEN_CLUB_MEMBER +
+  EDEN_CLUB_JOINED_<date> (+ EDEN_REF_BY_<id> when the visitor came through a friend's link; added by the site-wide
+  capture script in eden-club-popup.liquid).
+  @param section_id, email, note
+{%- endcomment -%}
+{%- form 'customer', class: 'erf__form', id: 'erf-join', data-eden-join: '' -%}
+  {%- if form.posted_successfully? -%}
+    <p class="erf__ok" role="status">ברוכה הבאה ל־EDEN BEAUTY CLUB ♡ התחברי לחשבון עם המייל הזה כדי לקבל את הקישור האישי.</p>
+  {%- endif -%}
+  {%- if form.errors -%}<p class="erf__err" role="alert">{{ form.errors | default_errors }}</p>{%- endif -%}
+  <input type="hidden" name="contact[tags]" value="EDEN_CLUB_MEMBER, EDEN_CLUB_JOINED_{{ 'now' | date: '%Y-%m-%d' }}" data-eden-tags>
+  <label class="erf__muted" for="erf-email-{{ section_id }}">כתובת המייל שלך</label>
+  <input class="erf__input" id="erf-email-{{ section_id }}" type="email" name="contact[email]" value="{{ email }}" required autocomplete="email" inputmode="email" placeholder="name@email.com" dir="ltr">
+  <button type="submit" class="erf__btn">אני רוצה להצטרף למועדון</button>
+  <p class="erf__fine">{{ note }}</p>
+{%- endform -%}
