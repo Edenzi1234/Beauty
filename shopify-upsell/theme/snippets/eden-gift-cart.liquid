@@ -1,0 +1,175 @@
+{%- comment -%}
+  EDEN BEAUTY CLUB – gift with purchase (cart drawer, rendered under the free-shipping bar in header-actions.liquid).
+  - Settings: shop metafields eden.gift_enabled / eden.gift_threshold (Settings → Custom data → Shop).
+  - Gift options: metaobjects "מתנת מועדון EDEN" (Content → Metaobjects) – title, subtitle, products or collection,
+    quantity, image, sort. Only options with something in stock are shown.
+  - Server side: automatic discount "EDEN CLUB – מתנה בקנייה מ־1,000 ₪" (members segment, ≥ threshold, max 2 items from
+    the gift collection at 100%, once per order). The theme only helps choose; the price is set by Shopify at checkout.
+  - Gift lines carry the hidden property _eden_gift = option title. eden-gift.js removes them when the cart stops
+    qualifying and replaces them when another option is chosen.
+{%- endcomment -%}
+{%- liquid
+  assign g = shop.metafields.eden
+  assign enabled = g.gift_enabled.value
+  if g.gift_enabled == blank
+    assign enabled = false
+  endif
+  assign threshold = g.gift_threshold.value | default: 1000 | times: 100 | round
+  assign is_member = false
+  if customer and customer.tags contains 'EDEN_CLUB_MEMBER'
+    assign is_member = true
+  endif
+  if g.gift_preview_everyone.value
+    assign is_member = true
+  endif
+
+  assign gift_total = 0
+  assign gift_keys = ''
+  assign chosen = ''
+  for item in cart.items
+    if item.properties._eden_gift != blank
+      assign gift_total = gift_total | plus: item.final_line_price
+      assign gift_keys = gift_keys | append: item.key | append: ','
+      assign chosen = item.properties._eden_gift
+    endif
+  endfor
+  assign total = cart.total_price | minus: gift_total
+  assign remaining = threshold | minus: total
+  if remaining < 0
+    assign remaining = 0
+  endif
+  assign eligible = false
+  if is_member and remaining == 0
+    assign eligible = true
+  endif
+  assign pct = total | times: 100 | divided_by: threshold
+  if pct > 100
+    assign pct = 100
+  endif
+  assign options = shop.metaobjects.eden_gift_option.values | sort: 'sort'
+  assign root = routes.root_url | append: '/' | replace: '//', '/'
+-%}
+<span hidden data-eden-gift-config data-threshold="{{ threshold }}" data-member="{{ is_member }}" data-enabled="{{ enabled }}"></span>
+{%- if enabled and cart.item_count > 0 and options.size > 0 -%}
+  <div class="egc{% if eligible %} is-open{% endif %}" data-eden-gift data-eligible="{{ eligible }}" data-keys="{{ gift_keys }}" dir="rtl">
+    {%- if is_member == false -%}
+      <p class="egc__note"><span aria-hidden="true">♡</span> חברות EDEN BEAUTY CLUB מקבלות <b>מתנה לבחירה</b> בקנייה מ־{{ threshold | money_without_trailing_zeros }}.
+        {% if customer %}<a href="/pages/eden-club-members">להצטרפות חינם</a>{% else %}<a href="{{ root }}account/login?return_url=%2Fcart">התחברי</a> או <a href="/pages/eden-club-members">הצטרפי חינם</a>{% endif %}</p>
+    {%- elsif eligible == false -%}
+      <div class="egc__progress" role="status">
+        <p class="egc__text">עוד <b>{{ remaining | money_without_trailing_zeros }}</b> ומחכה לך מתנה לבחירה <span aria-hidden="true">🎁</span></p>
+        <div class="egc__track" aria-hidden="true"><span style="--egc-pct: {{ pct }}%"></span></div>
+        <ul class="egc__peek" aria-label="המתנות שמחכות לך">
+          {%- for o in options limit: 4 -%}
+            {%- assign p = o.products.value | first -%}
+            {%- assign img = o.image.value | default: p.featured_image -%}
+            {%- if img -%}<li>{{ img | image_url: width: 120 | image_tag: loading: 'lazy', alt: o.title.value }}</li>{%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- else -%}
+      <div class="egc__head">
+        <p class="egc__kicker">EDEN BEAUTY CLUB</p>
+        <h3 class="egc__title">{% if chosen != blank %}המתנה שלך נבחרה ♡{% else %}הגעת למתנה! בחרי אחת ♡{% endif %}</h3>
+        <p class="egc__sub">מתנה אחת לבחירה בהזמנה – אפשר להחליף עד התשלום.</p>
+      </div>
+      <div class="egc__grid" role="radiogroup" aria-label="בחירת מתנה">
+        {%- for o in options -%}
+          {%- liquid
+            assign qty = o.quantity.value | default: 1
+            assign list_handle = ''
+            assign any = false
+            if o.collection.value
+              assign list_handle = o.collection.value.handle
+              for cp in o.collection.value.products limit: 250
+                if cp.available
+                  assign any = true
+                  break
+                endif
+              endfor
+            endif
+            for p in o.products.value
+              if p.available
+                assign any = true
+              endif
+            endfor
+            assign p0 = o.products.value | first
+            assign img = o.image.value | default: p0.featured_image
+            assign is_chosen = false
+            if chosen == o.title.value
+              assign is_chosen = true
+            endif
+          -%}
+          {%- if any -%}
+            <div class="egc__opt{% if is_chosen %} is-chosen{% endif %}" data-gift-opt data-title="{{ o.title.value | escape }}" data-qty="{{ qty }}" data-collection="{{ list_handle }}">
+              <script type="application/json" data-gift-items>[
+                {%- assign first = true -%}
+                {%- for p in o.products.value -%}
+                  {%- if p.available and list_handle == blank -%}
+                    {%- assign v = p.selected_or_first_available_variant -%}
+                    {%- unless first -%},{%- endunless -%}{%- assign first = false -%}
+                    {"id": {{ v.id | json }}, "title": {{ p.title | json }}, "img": {{ p.featured_image | image_url: width: 160 | json }}}
+                  {%- endif -%}
+                {%- endfor -%}
+              ]</script>
+              <div class="egc__img">{%- if img -%}{{ img | image_url: width: 300 | image_tag: loading: 'lazy', alt: o.title.value }}{%- endif -%}</div>
+              <b class="egc__name">{{ o.title.value }}</b>
+              {%- if o.subtitle != blank -%}<span class="egc__desc">{{ o.subtitle.value }}</span>{%- endif -%}
+              <span class="egc__free">0 ₪</span>
+              <button type="button" class="egc__pick" role="radio" aria-checked="{{ is_chosen }}" data-gift-pick>{% if is_chosen %}נבחרה ✓{% else %}בחירה{% endif %}</button>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+      <div class="egc__chooser" data-gift-chooser hidden>
+        <p class="egc__chooser-title" data-gift-chooser-title></p>
+        <div class="egc__swatches" data-gift-swatches></div>
+        <div class="egc__chooser-actions">
+          <button type="button" class="egc__btn" data-gift-confirm disabled>הוספת המתנה</button>
+          <button type="button" class="egc__link" data-gift-cancel>ביטול</button>
+        </div>
+      </div>
+      <p class="egc__err" role="alert" data-gift-err hidden></p>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+<style>
+  .egc { --rose: #c2456a; --deep: #9a3f52; --blush: #fde3ea; --champ: #c9a27a; --ink: #4a2530;
+    margin: 0 0 16px; padding: 14px; border-radius: 18px; background: linear-gradient(160deg, #fff 0%, #fdeef2 60%, #fbe1e8 100%);
+    border: 1px solid rgba(201, 162, 122, .45); color: var(--ink); text-align: right; }
+  .egc.is-open { box-shadow: 0 14px 34px rgba(154, 63, 82, .12); }
+  .egc__note { margin: 0; font-size: 13.5px; line-height: 1.5; } .egc__note a { color: var(--deep); font-weight: 700; }
+  .egc__text { margin: 0 0 8px; font-size: 13.5px; } .egc__text b { color: var(--rose); }
+  .egc__track { height: 7px; border-radius: 99px; background: rgba(194, 69, 106, .14); overflow: hidden; }
+  .egc__track span { display: block; height: 100%; width: var(--egc-pct); border-radius: inherit; background: linear-gradient(90deg, #d9b28a, var(--rose)); transition: width .6s cubic-bezier(.22, 1, .36, 1); }
+  .egc__peek { list-style: none; display: flex; gap: 6px; margin: 10px 0 0; padding: 0; }
+  .egc__peek li { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #fff; box-shadow: 0 0 0 2px #fff, 0 3px 8px rgba(154, 63, 82, .15); }
+  .egc__peek img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.9); }
+  .egc__kicker { margin: 0; font-size: 10.5px; letter-spacing: .32em; color: var(--champ); direction: ltr; text-align: right; font-weight: 700; }
+  .egc__title { margin: 4px 0 0; font-size: 18px; font-weight: 700; color: var(--deep); }
+  .egc__sub { margin: 2px 0 10px; font-size: 12.5px; color: #8a6470; }
+  .egc__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .egc__opt { position: relative; display: flex; flex-direction: column; gap: 3px; padding: 8px; border-radius: 14px; background: #fff;
+    border: 1.5px solid rgba(201, 162, 122, .35); transition: border-color .2s, box-shadow .2s, transform .2s; }
+  .egc__opt.is-active, .egc__opt.is-chosen { border-color: var(--rose); box-shadow: 0 8px 20px rgba(194, 69, 106, .18); }
+  .egc__img { aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--blush); }
+  .egc__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .egc__name { font-size: 13px; line-height: 1.3; } .egc__desc { font-size: 11.5px; color: #8a6470; }
+  .egc__free { position: absolute; top: 12px; inset-inline-start: 12px; padding: 2px 8px; border-radius: 99px; background: var(--rose); color: #fff; font-size: 11px; font-weight: 700; }
+  .egc__pick, .egc__btn { margin-top: auto; min-height: 38px; border: 0; border-radius: 99px; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700;
+    background: linear-gradient(135deg, #e88d9b, var(--rose) 55%, var(--deep)); color: #fff; }
+  .egc__opt.is-chosen .egc__pick { background: var(--blush); color: var(--deep); }
+  .egc__pick:disabled, .egc__btn:disabled { opacity: .55; cursor: default; }
+  .egc__pick:focus-visible, .egc__btn:focus-visible, .egc__sw:focus-visible { outline: 2px solid var(--deep); outline-offset: 2px; }
+  .egc__chooser { margin-top: 10px; padding: 10px; border-radius: 14px; background: #fff; border: 1px solid rgba(201, 162, 122, .35); }
+  .egc__chooser-title { margin: 0 0 8px; font-size: 13.5px; font-weight: 700; color: var(--deep); }
+  .egc__swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; max-height: 260px; overflow-y: auto; overscroll-behavior: contain; }
+  .egc__sw { display: grid; justify-items: center; gap: 3px; padding: 5px; border-radius: 12px; border: 1.5px solid transparent; background: #fffafb; cursor: pointer; font: inherit; font-size: 11px; color: var(--ink); }
+  .egc__sw img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; }
+  .egc__sw.is-on { border-color: var(--rose); background: var(--blush); font-weight: 700; }
+  .egc__chooser-actions { display: flex; gap: 10px; align-items: center; margin-top: 10px; } .egc__btn { padding: 0 18px; }
+  .egc__link { border: 0; background: none; font: inherit; font-size: 13px; color: #8a6470; text-decoration: underline; cursor: pointer; }
+  .egc__loading { grid-column: 1 / -1; margin: 6px 0; font-size: 13px; color: #8a6470; }
+  .egc__err { margin: 8px 0 0; font-size: 12.5px; color: #b3261e; }
+  @media (prefers-reduced-motion: reduce) { .egc *, .egc { transition: none !important; } }
+</style>
